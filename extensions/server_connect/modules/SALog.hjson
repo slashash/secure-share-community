@@ -1,0 +1,40 @@
+{
+    type: 'SALog_mymod',
+    module: 'SALog',
+    action: 'CreateLog',
+    groupTitle: 'File Management',
+    groupIcon: 'fas fa-screwdriver comp-files',
+    title : 'Create Log @@var(status)@@ @@var(name)@@',
+    icon : 'fad fa-lg fa-screwdriver comp-files',
+    dataScheme: [
+      {name: 'log', type: 'array'}
+    ],
+    dataPickObject: true,
+    properties : [
+      {
+        group: 'Details',
+        variables: [
+          { name: 'name', optionName: 'name', title: 'Name<sup style="color:red">*</sup>', type: 'text', required: true, defaultValue: ''},
+          { name: 'connection', optionName: 'connection', title: 'Connection<sup style="color:red">*</sup>', type: 'text', defaultValue: '', required: true,},
+          { name: 'logMode', optionName: 'logMode', title: 'Insert', type: 'boolean', defaultValue: false }
+        ]
+      },
+      {
+        group: 'Log Details',
+        variables: [
+          { name: 'sessionGUID', optionName: 'sessionGUID', title: 'Session GUID<sup style="color:red">*</sup>', required: true, type: 'text', serverDataBindings: true},
+          { name: 'serverActionName', optionName: 'serverActionName', title: 'Server Action', type: 'text', serverDataBindings: true},
+          { name: 'userIdentity', optionName: 'userIdentity', title: 'User Identity', type: 'text', serverDataBindings: true},
+          { name: 'inputParams', optionName: 'inputParams', title: 'Input Data', type: 'text', serverDataBindings: true},
+          { name: 'outputParams', optionName: 'outputParams', title: 'Output Data', type: 'text', serverDataBindings: true},
+          { name: 'requestURL', optionName: 'requestURL', title: 'Request URL', type: 'text', serverDataBindings: true},
+          { name: 'errors', optionName: 'errors', title: 'Error Log', type: 'text', serverDataBindings: true},
+          { name: 'remarks', optionName: 'remarks', title: 'Remarks', type: 'text', serverDataBindings: true},
+          { name: 'startedOn', optionName: 'startedOn', title: 'Started On', type: 'text', serverDataBindings: true },
+          { name: 'completedOn', optionName: 'completedOn', title: 'Completed On', type: 'text', serverDataBindings: true }
+          { name: 'status', optionName: 'status', title: 'Response Code', type: 'text', serverDataBindings: false }
+          { name: 'response', optionName: 'response', title: 'Response Message', type: 'text', serverDataBindings: true }
+        ]
+      }
+    ]
+  }

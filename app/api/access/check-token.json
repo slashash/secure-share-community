@@ -1,0 +1,196 @@
+{
+  "meta": {
+    "options": {
+      "linkedForm": "formDeleteUser"
+    },
+    "$_PARAM": [
+      {
+        "type": "text",
+        "name": "token"
+      }
+    ]
+  },
+  "exec": {
+    "steps": {
+      "name": "",
+      "module": "core",
+      "action": "trycatch",
+      "options": {
+        "try": {
+          "steps": [
+            {
+              "name": "qCheckToken",
+              "module": "dbconnector",
+              "action": "single",
+              "options": {
+                "connection": "db",
+                "sql": {
+                  "type": "select",
+                  "columns": [
+                    {
+                      "table": "MU",
+                      "column": "user_id",
+                      "recid": 1
+                    }
+                  ],
+                  "params": [
+                    {
+                      "operator": "equal",
+                      "type": "expression",
+                      "name": ":P1",
+                      "value": "{{$_PARAM.token}}",
+                      "test": ""
+                    },
+                    {
+                      "operator": "greater_or_equal",
+                      "type": "expression",
+                      "name": ":P2",
+                      "value": "{{NOW_UTC}}",
+                      "test": ""
+                    }
+                  ],
+                  "table": {
+                    "name": "m_user",
+                    "schema": "app",
+                    "alias": "MU"
+                  },
+                  "primary": "user_id",
+                  "joins": [],
+                  "wheres": {
+                    "condition": "AND",
+                    "rules": [
+                      {
+                        "id": "MU.pass_reset_token",
+                        "field": "MU.pass_reset_token",
+                        "type": "string",
+                        "operator": "equal",
+                        "value": "{{$_PARAM.token}}",
+                        "data": {
+                          "table": "MU",
+                          "column": "pass_reset_token",
+                          "type": "text",
+                          "columnObj": {
+                            "type": "uuid",
+                            "primary": false,
+                            "unique": false,
+                            "nullable": true,
+                            "name": "pass_reset_token"
+                          }
+                        },
+                        "operation": "="
+                      },
+                      {
+                        "id": "MU.pass_reset_token_expiry",
+                        "field": "MU.pass_reset_token_expiry",
+                        "type": "datetime",
+                        "operator": "greater_or_equal",
+                        "value": "{{NOW_UTC}}",
+                        "data": {
+                          "table": "MU",
+                          "column": "pass_reset_token_expiry",
+                          "type": "datetime",
+                          "columnObj": {
+                            "type": "timestamp",
+                            "primary": false,
+                            "unique": false,
+                            "nullable": true,
+                            "name": "pass_reset_token_expiry"
+                          }
+                        },
+                        "operation": ">="
+                      }
+                    ],
+                    "conditional": null,
+                    "valid": true
+                  },
+                  "query": "select \"user_id\" from \"app\".\"m_user\" as \"MU\" where \"MU\".\"pass_reset_token\" = ? and \"MU\".\"pass_reset_token_expiry\" >= ?"
+                }
+              },
+              "output": false,
+              "meta": [
+                {
+                  "type": "text",
+                  "name": "user_id"
+                }
+              ],
+              "outputType": "object"
+            },
+            {
+              "name": "",
+              "module": "core",
+              "action": "condition",
+              "options": {
+                "if": "{{!qCheckToken.user_id}}",
+                "then": {
+                  "steps": {
+                    "name": "",
+                    "module": "core",
+                    "action": "redirect",
+                    "options": {
+                      "url": "/403-forbidden"
+                    }
+                  }
+                }
+              },
+              "outputType": "boolean"
+            },
+            {
+              "name": "xLog",
+              "module": "SALog",
+              "action": "CreateLog",
+              "options": {
+                "connection": "db",
+                "logMode": true,
+                "inputParams": "{{$_PARAM}}",
+                "outputParams": "",
+                "serverActionName": "{{$_SERVER.PATH_INFO}}",
+                "requestURL": "{{$_SERVER.BASE_URL}}",
+                "errors": "",
+                "startedOn": "{{varStartTime}}",
+                "completedOn": "{{NOW_UTC}}",
+                "remarks": "",
+                "sessionGUID": "{{varSessionGUID}}",
+                "userIdentity": "{{identity}}"
+              },
+              "meta": [
+                {
+                  "name": "log",
+                  "type": "array"
+                }
+              ]
+            }
+          ]
+        },
+        "catch": {
+          "steps": {
+            "name": "xLogErr",
+            "module": "SALog",
+            "action": "CreateLog",
+            "options": {
+              "connection": "db",
+              "logMode": true,
+              "inputParams": "{{$_PARAM}}",
+              "outputParams": "",
+              "serverActionName": "{{$_SERVER.PATH_INFO}}",
+              "requestURL": "{{$_SERVER.BASE_URL}}",
+              "errors": "{{$_ERROR}}",
+              "startedOn": "{{varStartTime}}",
+              "completedOn": "{{NOW_UTC}}",
+              "remarks": "",
+              "status": 500,
+              "response": "{{varError}}",
+              "sessionGUID": "{{varSessionGUID}}",
+              "userIdentity": "{{identity}}"
+            },
+            "meta": [
+              {
+                "name": "log",
+                "type": "array"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

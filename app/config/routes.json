@@ -1,0 +1,75 @@
+{
+  "routes": [
+    {
+      "path": "/",
+      "page": "login",
+      "layout": "access",
+      "exec": "/api/access/check-login-status",
+      "data": {
+        "title": "Login - Secure Share"
+      }
+    },
+    {
+      "path": "/reset-password/:token",
+      "page": "reset-password",
+      "layout": "access",
+      "exec": "/api/access/check-token",
+      "data": {
+        "title": "Reset-Password - Secure Share"
+      }
+    },
+    {
+      "path": "/settings",
+      "page": "settings",
+      "layout": "main",
+      "exec": "/api/access/check-pub-key",
+      "data": {
+        "title": "Setttings - Secure Share"
+      }
+    },
+    {
+      "path": "/secrets",
+      "page": "secrets",
+      "layout": "main",
+      "exec": "/api/access/check-pub-key",
+      "data": {
+        "title": "Secrets - Secure Share"
+      }
+    },
+    {
+      "path": "/403-forbidden",
+      "page": "403-forbidden",
+      "layout": "access",
+      "data": {
+        "title": "403-Forbidden - Secure Share"
+      }
+    },
+    {
+      "path": "/my-key",
+      "page": "my-key",
+      "layout": "main",
+      "exec": "/api/access/check-pub-key",
+      "data": {
+        "title": "My Key - Secure Share"
+      }
+    }
+  ],
+  "layouts": {
+    "main": {
+      "meta": [
+        {
+          "type": "text",
+          "name": "title"
+        }
+      ]
+    },
+    "access": {
+      "meta": [
+        {
+          "type": "text",
+          "name": "title"
+        }
+      ]
+    }
+  }
+}

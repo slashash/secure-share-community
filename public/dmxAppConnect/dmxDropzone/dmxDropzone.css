@@ -1,0 +1,80 @@
+.dmxDropzone {
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 1rem;
+  gap: .75rem;
+  padding: .75rem;
+}
+
+.dmxDropzone:not(.form-control) {
+  background-color: #fff;
+  border: 2px dashed red;
+  border-radius: var(--bs-border-radius, .375rem);
+}
+
+.dmxDropzone:hover {
+  cursor: pointer;
+}
+
+.dmxDropzoneMessage {
+  color: #666;
+  margin: 1rem;
+  text-align: center;
+  width: 100%;
+  pointer-events: none;
+}
+
+.dmxDropzoneThumb {
+  background-color: #ccc;
+  background-size: cover;
+  border-radius: 10px;
+  font-size: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.dmxDropzoneThumb:hover::before {
+  background-color: rgba(225, 0, 0, .8);
+  bottom: 0;
+  box-sizing: border-box;
+  color: #fff;
+  content: 'Remove';
+  padding: 2px 10px;
+  position: absolute;
+  text-align: center;
+  width: 100%;
+}
+
+.dmxDropzoneFilename {
+  background-color: rgba(0, 0, 0, .6);
+  box-sizing: border-box;
+  color: #fff;
+  overflow: hidden;
+  padding: 2px 10px;
+  position: absolute;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.dmxDropzoneFilesize {
+  background-color: rgba(0, 0, 0, .6);
+  border-radius: 5px;
+  box-sizing: border-box;
+  color: #fff;
+  height: 20px;
+  left: 20%;
+  line-height: 16px;
+  overflow: hidden;
+  padding: 2px 10px;
+  position: absolute;
+  text-align: center;
+  top: calc(50% - 10px);
+  white-space: nowrap;
+  width: 60%;
+}
+
+.dmxDropzoneHover {
+  background: #eee;
+}

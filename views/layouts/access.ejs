@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+
+<head>
+  <base href="/">
+  <script src="/dmxAppConnect/dmxAppConnect.js"></script>
+  <meta charset="UTF-8">
+  <title><%=_('title')%></title>
+  <link rel="icon" href="/images/logo.svg">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <script src="/dmxAppConnect/dmxRouting/dmxRouting.js" defer></script>
+  <link rel="stylesheet" href="/dmxAppConnect/dmxNotifications/dmxNotifications.css" />
+  <script src="/dmxAppConnect/dmxNotifications/dmxNotifications.js" defer></script>
+  <script src="/dmxAppConnect/dmxBrowser/dmxBrowser.js" defer></script>
+  <script src="/dmxAppConnect/dmxBootstrap5Navigation/dmxBootstrap5Navigation.js" defer></script>
+  <link rel="stylesheet" href="/bootstrap/5/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/css/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <script src="/dmxAppConnect/dmxBootstrap5Theme/dmxBootstrap5Theme.js" defer></script>
+  <script src="/js/color-modes.js" defer></script>
+  <script src="/js/theme-changer.js" defer></script>
+  <link rel="stylesheet" href="/dmxAppConnect/dmxValidator/dmxValidator.css" />
+  <script src="/dmxAppConnect/dmxValidator/dmxValidator.js" defer></script>
+</head>
+
+<body is="dmx-app" id="main">
+  <dmx-notifications id="notif" timeout="7000" extended-timeout="0" info-icon="bi bi-info-circle" success-icon="bi bi-check-circle" warning-icon="bi bi-exclamation-octagon" danger-icon="bi bi-exclamation-triangle" closable="true" close-icon="bi bi-x-lg"></dmx-notifications>
+  <div is="dmx-browser" id="browser1"></div>
+  <div is="dmx-view" id="content">
+    <%- await include(content, locals); %>
+  </div>
+
+  <script src="/bootstrap/5/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

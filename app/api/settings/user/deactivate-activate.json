@@ -1,0 +1,286 @@
+{
+  "meta": {
+    "options": {
+      "linkedFile": "/views/settings.ejs",
+      "linkedForm": "formUserLogin"
+    },
+    "$_GET": [
+      {
+        "type": "text",
+        "options": {
+          "rules": {
+            "core:required": {}
+          }
+        },
+        "name": "user_id"
+      },
+      {
+        "type": "text",
+        "name": "disabled_on"
+      }
+    ]
+  },
+  "exec": {
+    "steps": [
+      {
+        "name": "",
+        "module": "auth",
+        "action": "restrict",
+        "options": {
+          "provider": "security",
+          "permissions": [
+            "admin"
+          ],
+          "loginUrl": "/",
+          "forbiddenUrl": "/403-forbidden"
+        }
+      },
+      {
+        "name": "",
+        "module": "core",
+        "action": "trycatch",
+        "options": {
+          "try": {
+            "steps": [
+              {
+                "name": "",
+                "module": "core",
+                "action": "condition",
+                "options": {
+                  "if": "{{$_GET.disabled_on}}",
+                  "then": {
+                    "steps": {
+                      "name": "uUser",
+                      "module": "dbupdater",
+                      "action": "update",
+                      "options": {
+                        "connection": "db",
+                        "sql": {
+                          "type": "update",
+                          "values": [
+                            {
+                              "table": "app.m_user",
+                              "column": "login_disabled_by",
+                              "type": "text",
+                              "value": "{{null}}"
+                            },
+                            {
+                              "table": "app.m_user",
+                              "column": "login_disabled_on",
+                              "type": "datetime",
+                              "value": "{{null}}"
+                            }
+                          ],
+                          "table": "app.m_user",
+                          "wheres": {
+                            "condition": "AND",
+                            "rules": [
+                              {
+                                "id": "user_id",
+                                "field": "user_id",
+                                "type": "string",
+                                "operator": "equal",
+                                "value": "{{$_GET.user_id}}",
+                                "data": {
+                                  "column": "user_id"
+                                },
+                                "operation": "="
+                              },
+                              {
+                                "id": "login_disabled_on",
+                                "field": "login_disabled_on",
+                                "type": "datetime",
+                                "operator": "is_not_null",
+                                "value": null,
+                                "data": {
+                                  "column": "login_disabled_on"
+                                },
+                                "operation": "IS NOT NULL"
+                              }
+                            ],
+                            "conditional": null,
+                            "valid": true
+                          },
+                          "returning": "user_id",
+                          "query": "update \"app\".\"m_user\" set \"login_disabled_by\" = ?, \"login_disabled_on\" = ? where \"user_id\" = ? and \"login_disabled_on\" is not null returning \"user_id\"",
+                          "params": [
+                            {
+                              "name": ":P1",
+                              "type": "expression",
+                              "value": "{{null}}",
+                              "test": ""
+                            },
+                            {
+                              "name": ":P2",
+                              "type": "expression",
+                              "value": "{{null}}",
+                              "test": ""
+                            },
+                            {
+                              "operator": "equal",
+                              "type": "expression",
+                              "name": ":P3",
+                              "value": "{{$_GET.user_id}}",
+                              "test": ""
+                            }
+                          ]
+                        }
+                      },
+                      "meta": [
+                        {
+                          "name": "affected",
+                          "type": "number"
+                        }
+                      ]
+                    }
+                  },
+                  "else": {
+                    "steps": {
+                      "name": "uUser",
+                      "module": "dbupdater",
+                      "action": "update",
+                      "options": {
+                        "connection": "db",
+                        "sql": {
+                          "type": "update",
+                          "values": [
+                            {
+                              "table": "app.m_user",
+                              "column": "login_disabled_by",
+                              "type": "text",
+                              "value": "{{identity}}"
+                            },
+                            {
+                              "table": "app.m_user",
+                              "column": "login_disabled_on",
+                              "type": "datetime",
+                              "value": "{{NOW_UTC}}"
+                            }
+                          ],
+                          "table": "app.m_user",
+                          "wheres": {
+                            "condition": "AND",
+                            "rules": [
+                              {
+                                "id": "user_id",
+                                "field": "user_id",
+                                "type": "string",
+                                "operator": "equal",
+                                "value": "{{$_GET.user_id}}",
+                                "data": {
+                                  "column": "user_id"
+                                },
+                                "operation": "="
+                              },
+                              {
+                                "id": "login_disabled_by",
+                                "field": "login_disabled_by",
+                                "type": "string",
+                                "operator": "is_null",
+                                "value": null,
+                                "data": {
+                                  "column": "login_disabled_by"
+                                },
+                                "operation": "IS NULL"
+                              }
+                            ],
+                            "conditional": null,
+                            "valid": true
+                          },
+                          "returning": "user_id",
+                          "query": "update \"app\".\"m_user\" set \"login_disabled_by\" = ?, \"login_disabled_on\" = ? where \"user_id\" = ? and \"login_disabled_by\" is null returning \"user_id\"",
+                          "params": [
+                            {
+                              "name": ":P1",
+                              "type": "expression",
+                              "value": "{{identity}}",
+                              "test": ""
+                            },
+                            {
+                              "name": ":P2",
+                              "type": "expression",
+                              "value": "{{NOW_UTC}}",
+                              "test": ""
+                            },
+                            {
+                              "operator": "equal",
+                              "type": "expression",
+                              "name": ":P3",
+                              "value": "{{$_GET.user_id}}",
+                              "test": ""
+                            }
+                          ]
+                        }
+                      },
+                      "meta": [
+                        {
+                          "name": "affected",
+                          "type": "number"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "outputType": "boolean"
+              },
+              {
+                "name": "xLog",
+                "module": "SALog",
+                "action": "CreateLog",
+                "options": {
+                  "connection": "db",
+                  "logMode": true,
+                  "inputParams": "{{$_POST}}",
+                  "outputParams": "",
+                  "serverActionName": "{{$_SERVER.PATH_INFO}}",
+                  "requestURL": "{{$_SERVER.BASE_URL}}",
+                  "errors": "",
+                  "startedOn": "{{varStartTime}}",
+                  "completedOn": "{{NOW_UTC}}",
+                  "remarks": "",
+                  "sessionGUID": "{{varSessionGUID}}",
+                  "userIdentity": "{{identity}}"
+                },
+                "meta": [
+                  {
+                    "name": "log",
+                    "type": "array"
+                  }
+                ]
+              }
+            ]
+          },
+          "catch": {
+            "steps": {
+              "name": "xLogErr",
+              "module": "SALog",
+              "action": "CreateLog",
+              "options": {
+                "connection": "db",
+                "logMode": true,
+                "inputParams": "{{$_POST}}",
+                "outputParams": "",
+                "serverActionName": "{{$_SERVER.PATH_INFO}}",
+                "requestURL": "{{$_SERVER.BASE_URL}}",
+                "errors": "{{$_ERROR}}",
+                "startedOn": "{{varStartTime}}",
+                "completedOn": "{{NOW_UTC}}",
+                "remarks": "",
+                "status": 500,
+                "response": "{{varError}}",
+                "sessionGUID": "{{varSessionGUID}}",
+                "userIdentity": "{{identity}}"
+              },
+              "meta": [
+                {
+                  "name": "log",
+                  "type": "array"
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

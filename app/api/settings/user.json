@@ -1,0 +1,460 @@
+{
+  "meta": {
+    "$_GET": [
+      {
+        "type": "text",
+        "name": "sort"
+      },
+      {
+        "type": "text",
+        "name": "dir"
+      },
+      {
+        "type": "number",
+        "name": "offset"
+      },
+      {
+        "type": "number",
+        "name": "limit"
+      }
+    ]
+  },
+  "exec": {
+    "steps": [
+      {
+        "name": "",
+        "module": "auth",
+        "action": "restrict",
+        "options": {
+          "provider": "security",
+          "permissions": []
+        }
+      },
+      {
+        "name": "",
+        "module": "core",
+        "action": "trycatch",
+        "options": {
+          "try": {
+            "steps": [
+              {
+                "name": "qLoginUser",
+                "module": "dbconnector",
+                "action": "single",
+                "options": {
+                  "connection": "db",
+                  "sql": {
+                    "type": "select",
+                    "columns": [
+                      {
+                        "table": "MU",
+                        "column": "user_id",
+                        "recid": 1
+                      },
+                      {
+                        "table": "MU",
+                        "column": "first_name",
+                        "recid": 2
+                      },
+                      {
+                        "table": "MU",
+                        "column": "last_name",
+                        "recid": 3
+                      },
+                      {
+                        "table": "MU",
+                        "column": "email_id",
+                        "recid": 4
+                      },
+                      {
+                        "table": "MU",
+                        "column": "is_admin",
+                        "recid": 5
+                      },
+                      {
+                        "table": "MU",
+                        "column": "pub_key_sha_256",
+                        "recid": 6
+                      },
+                      {
+                        "table": "MU",
+                        "column": "encypted_data",
+                        "recid": 7
+                      },
+                      {
+                        "table": "MU",
+                        "column": "secret_key",
+                        "recid": 8
+                      },
+                      {
+                        "table": "MU",
+                        "column": "secret_iv",
+                        "recid": 9
+                      }
+                    ],
+                    "params": [
+                      {
+                        "operator": "equal",
+                        "type": "expression",
+                        "name": ":P1",
+                        "value": "{{identity}}",
+                        "test": "7f62b947-8c7f-44a9-a37b-aefe5fd49e17"
+                      }
+                    ],
+                    "table": {
+                      "name": "m_user",
+                      "schema": "app",
+                      "alias": "MU"
+                    },
+                    "primary": "user_id",
+                    "joins": [],
+                    "wheres": {
+                      "condition": "AND",
+                      "rules": [
+                        {
+                          "id": "MU.user_id",
+                          "field": "MU.user_id",
+                          "type": "string",
+                          "operator": "equal",
+                          "value": "{{identity}}",
+                          "data": {
+                            "table": "MU",
+                            "column": "user_id",
+                            "type": "text",
+                            "columnObj": {
+                              "type": "uuid",
+                              "default": "gen_random_uuid()",
+                              "primary": true,
+                              "unique": true,
+                              "nullable": false,
+                              "name": "user_id"
+                            }
+                          },
+                          "operation": "=",
+                          "table": "m_user"
+                        }
+                      ],
+                      "conditional": null,
+                      "valid": true
+                    },
+                    "query": "select \"user_id\", \"first_name\", \"last_name\", \"email_id\", \"is_admin\", \"pub_key_sha_256\", \"encypted_data\", \"secret_key\", \"secret_iv\" from \"app\".\"m_user\" as \"MU\" where \"MU\".\"user_id\" = ?",
+                    "orders": []
+                  }
+                },
+                "output": true,
+                "meta": [
+                  {
+                    "type": "text",
+                    "name": "user_id"
+                  },
+                  {
+                    "type": "text",
+                    "name": "first_name"
+                  },
+                  {
+                    "type": "text",
+                    "name": "last_name"
+                  },
+                  {
+                    "type": "text",
+                    "name": "email_id"
+                  },
+                  {
+                    "type": "boolean",
+                    "name": "is_admin"
+                  },
+                  {
+                    "type": "text",
+                    "name": "pub_key_sha_256"
+                  },
+                  {
+                    "type": "text",
+                    "name": "encypted_data"
+                  },
+                  {
+                    "type": "text",
+                    "name": "secret_key"
+                  },
+                  {
+                    "type": "text",
+                    "name": "secret_iv"
+                  }
+                ],
+                "outputType": "object"
+              },
+              {
+                "name": "",
+                "module": "core",
+                "action": "condition",
+                "options": {
+                  "if": "{{qLoginUser.is_admin}}",
+                  "then": {
+                    "steps": {
+                      "name": "qUsers",
+                      "module": "dbconnector",
+                      "action": "paged",
+                      "options": {
+                        "connection": "db",
+                        "sql": {
+                          "type": "select",
+                          "columns": [
+                            {
+                              "table": "UL",
+                              "column": "user_id"
+                            },
+                            {
+                              "table": "UL",
+                              "column": "first_name"
+                            },
+                            {
+                              "table": "UL",
+                              "column": "last_name"
+                            },
+                            {
+                              "table": "UL",
+                              "column": "is_admin"
+                            },
+                            {
+                              "table": "UL",
+                              "column": "email_id"
+                            },
+                            {
+                              "table": "UL",
+                              "column": "phone"
+                            },
+                            {
+                              "table": "UL",
+                              "column": "pub_key"
+                            },
+                            {
+                              "table": "UL",
+                              "column": "login_disabled_on"
+                            },
+                            {
+                              "table": "UL",
+                              "column": "deleted_on"
+                            }
+                          ],
+                          "params": [
+                            {
+                              "operator": "not_equal",
+                              "type": "expression",
+                              "name": ":P1",
+                              "value": "{{identity}}",
+                              "test": ""
+                            }
+                          ],
+                          "table": {
+                            "name": "app.vw_users_list",
+                            "alias": "UL"
+                          },
+                          "joins": [],
+                          "query": "select \"user_id\", \"first_name\", \"last_name\", \"is_admin\", \"email_id\", \"phone\", \"pub_key\", \"login_disabled_on\", \"deleted_on\" from \"app\".\"vw_users_list\" as \"UL\" where \"UL\".\"user_id\" <> ? and \"UL\".\"deleted_on\" is null limit ?",
+                          "limit": 10000,
+                          "wheres": {
+                            "condition": "AND",
+                            "rules": [
+                              {
+                                "id": "UL.user_id",
+                                "field": "UL.user_id",
+                                "type": "string",
+                                "operator": "not_equal",
+                                "value": "{{identity}}",
+                                "data": {
+                                  "table": "UL",
+                                  "column": "user_id",
+                                  "type": "text",
+                                  "columnObj": {
+                                    "type": "uuid",
+                                    "primary": false,
+                                    "nullable": true,
+                                    "name": "user_id"
+                                  }
+                                },
+                                "operation": "<>"
+                              },
+                              {
+                                "id": "UL.deleted_on",
+                                "field": "UL.deleted_on",
+                                "type": "datetime",
+                                "operator": "is_null",
+                                "value": null,
+                                "data": {
+                                  "table": "UL",
+                                  "column": "deleted_on",
+                                  "type": "datetime",
+                                  "columnObj": {
+                                    "type": "timestamp",
+                                    "primary": false,
+                                    "nullable": true,
+                                    "name": "deleted_on"
+                                  }
+                                },
+                                "operation": "IS NULL"
+                              }
+                            ],
+                            "conditional": null,
+                            "valid": true
+                          }
+                        }
+                      },
+                      "output": true,
+                      "meta": [
+                        {
+                          "name": "offset",
+                          "type": "number"
+                        },
+                        {
+                          "name": "limit",
+                          "type": "number"
+                        },
+                        {
+                          "name": "total",
+                          "type": "number"
+                        },
+                        {
+                          "name": "page",
+                          "type": "object",
+                          "sub": [
+                            {
+                              "name": "offset",
+                              "type": "object",
+                              "sub": [
+                                {
+                                  "name": "first",
+                                  "type": "number"
+                                },
+                                {
+                                  "name": "prev",
+                                  "type": "number"
+                                },
+                                {
+                                  "name": "next",
+                                  "type": "number"
+                                },
+                                {
+                                  "name": "last",
+                                  "type": "number"
+                                }
+                              ]
+                            },
+                            {
+                              "name": "current",
+                              "type": "number"
+                            },
+                            {
+                              "name": "total",
+                              "type": "number"
+                            }
+                          ]
+                        },
+                        {
+                          "name": "data",
+                          "type": "array",
+                          "sub": [
+                            {
+                              "type": "text",
+                              "name": "user_id"
+                            },
+                            {
+                              "type": "text",
+                              "name": "first_name"
+                            },
+                            {
+                              "type": "text",
+                              "name": "last_name"
+                            },
+                            {
+                              "type": "boolean",
+                              "name": "is_admin"
+                            },
+                            {
+                              "type": "text",
+                              "name": "email_id"
+                            },
+                            {
+                              "type": "text",
+                              "name": "phone"
+                            },
+                            {
+                              "type": "number",
+                              "name": "pub_key"
+                            },
+                            {
+                              "type": "datetime",
+                              "name": "login_disabled_on"
+                            },
+                            {
+                              "type": "datetime",
+                              "name": "deleted_on"
+                            }
+                          ]
+                        }
+                      ],
+                      "outputType": "object"
+                    }
+                  }
+                },
+                "outputType": "boolean"
+              },
+              {
+                "name": "xLog",
+                "module": "SALog",
+                "action": "CreateLog",
+                "options": {
+                  "connection": "db",
+                  "logMode": true,
+                  "inputParams": "",
+                  "outputParams": "",
+                  "serverActionName": "{{$_SERVER.PATH_INFO}}",
+                  "requestURL": "{{$_SERVER.BASE_URL}}",
+                  "errors": "",
+                  "startedOn": "{{varStartTime}}",
+                  "completedOn": "{{NOW_UTC}}",
+                  "remarks": "",
+                  "sessionGUID": "{{varSessionGUID}}",
+                  "userIdentity": "{{identity}}"
+                },
+                "meta": [
+                  {
+                    "name": "log",
+                    "type": "array"
+                  }
+                ]
+              }
+            ]
+          },
+          "catch": {
+            "steps": {
+              "name": "xLogErr",
+              "module": "SALog",
+              "action": "CreateLog",
+              "options": {
+                "connection": "db",
+                "logMode": true,
+                "inputParams": "",
+                "outputParams": "",
+                "serverActionName": "{{$_SERVER.PATH_INFO}}",
+                "requestURL": "{{$_SERVER.BASE_URL}}",
+                "errors": "{{$_ERROR}}",
+                "startedOn": "{{varStartTime}}",
+                "completedOn": "{{NOW_UTC}}",
+                "remarks": "",
+                "status": 500,
+                "response": "{{varError}}",
+                "sessionGUID": "{{varSessionGUID}}",
+                "userIdentity": "{{identity}}"
+              },
+              "meta": [
+                {
+                  "name": "log",
+                  "type": "array"
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

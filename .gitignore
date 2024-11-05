@@ -1,0 +1,6 @@
+node_modules
+**/.DS_Store
+.svn
+.env
+.env-dev
+.env-prod

@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+
+<head>
+  <base href="/">
+  <script src="/dmxAppConnect/dmxAppConnect.js"></script>
+  <base href="/">
+  <meta charset="UTF-8">
+  <title><%=_('title')%></title>
+  <link rel="icon" href="/images/logo.svg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="/dmxAppConnect/dmxNotifications/dmxNotifications.css" />
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+  <script src="/dmxAppConnect/dmxNotifications/dmxNotifications.js" defer></script>
+  <script src="/dmxAppConnect/dmxRouting/dmxRouting.js" defer></script>
+  <script src="/dmxAppConnect/dmxBrowser/dmxBrowser.js" defer></script>
+  <script src="/dmxAppConnect/dmxBootstrap5Navigation/dmxBootstrap5Navigation.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.17.7/dist/tagify.min.js" defer></script>
+  <script src="/dmxAppConnect/dmxTagify/dmxTagify.js" defer></script>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.17.7/dist/tagify.css" />
+  <script src="/dmxAppConnect/dmxFormatter/dmxFormatter.js" defer></script>
+  <script src="/dmxAppConnect/dmxDataTraversal/dmxDataTraversal.js" defer></script>
+  <script src="/dmxAppConnect/dmxBootstrap5Modal/dmxBootstrap5Modal.js" defer></script>
+
+  <script src="/dmxAppConnect/dmxFormRepeat/dmxFormRepeat.js" defer></script>
+  <link rel="stylesheet" href="/dmxAppConnect/dmxBootstrap5TableGenerator/dmxBootstrap5TableGenerator.css" />
+  <link rel="stylesheet" href="/dmxAppConnect/dmxDropzone/dmxDropzone.css" />
+  <script src="/dmxAppConnect/dmxDropzone/dmxDropzone.js" defer></script>
+  <script src="/dmxAppConnect/dmxDatastore/dmxDatastore.js" defer></script>
+  <link rel="stylesheet" href="/bootstrap/5/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/css/bootstrap-icons.css" />
+  <link rel="stylesheet" href="/dmxAppConnect/dmxValidator/dmxValidator.css" />
+  <script src="/dmxAppConnect/dmxValidator/dmxValidator.js" defer></script>
+  <link rel="stylesheet" href="/css/bootstrap-icons.min.css" />
+  <script src="/dmxAppConnect/dmxVideo/dmxVideo.js" defer></script>
+  <script src="/dmxAppConnect/dmxStateManagement/dmxStateManagement.js" defer></script>
+  <script src="/dmxAppConnect/dmxBootstrap5Tooltips/dmxBootstrap5Tooltips.js" defer></script>
+  <script src="/dmxAppConnect/dmxBootstrap5PagingGenerator/dmxBootstrap5PagingGenerator.js" defer></script>
+  <link rel="stylesheet" href="/css/style.css" />
+  <script src="/dmxAppConnect/dmxBootstrap5Theme/dmxBootstrap5Theme.js" defer></script>
+  <script src="/js/color-modes.js" defer></script>
+  <script src="/js/theme-changer.js" defer></script>
+  <script src="/socket.io/socket.io.js" defer></script>
+  <script src="/dmxAppConnect/dmxSockets/dmxSockets.js" defer></script>
+</head>
+
+<body is="dmx-app" id="main">
+  <dmx-serverconnect id="scUsers" url="/api/settings/user" dmx-param:sort="query.sort.default('first_name')" dmx-param:dir="query.dir.default('asc')" dmx-param:offset="query.offset"></dmx-serverconnect>
+  <dmx-serverconnect id="scLogout" url="/api/access/logout" noload="true" dmx-on:success="browser1.goto('/')"></dmx-serverconnect>
+  <div is="dmx-browser" id="browser1"></div>
+  <dmx-notifications id="notif" timeout="7000" extended-timeout="0" info-icon="bi bi-info-circle" success-icon="bi bi-check-circle" warning-icon="bi bi-exclamation-octagon" danger-icon="bi bi-exclamation-triangle" closable="true" close-icon="bi bi-x-lg"></dmx-notifications>
+  <header class="bg-body-tertiary py-2 shadow-sm">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <nav class="justify-content-end navbar navbar-expand-lg">
+            <a class="navbar-brand me-auto" href="/secrets" internal="true" title="Secrets - Secure Share"><span>🔐</span>Secure Share</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar1_collapse" aria-controls="navbar1_collapse" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbar1_collapse">
+              <div class="navbar-nav align-items-center mt-2 mt-lg-0">
+                <a class="nav-item nav-link active" href="/secrets" dmx-show="!browser1.location.pathname.contains('key')" internal="true" title="Secrets - Secure Share" dmx-bind:data-bs-toggle="browser1.viewport.width < 992 ? 'collapse' : ''" data-bs-target="#navbar1_collapse">Secrets</a>
+                <a class="nav-item nav-link active" href="/settings" dmx-show="!browser1.location.pathname.contains('key')" internal="true" title="Settings - Secure Share" dmx-bind:data-bs-toggle="browser1.viewport.width < 992 ? 'collapse' : ''" data-bs-target="#navbar1_collapse">Settings</a>
+                <a class="nav-item nav-link" href="javascript:void(0);" dmx-on:click="run([{runJS:{function:'removeSession',outputType:'text'}},{run:{action:`scLogout.load()`,outputType:'text'}}])">Logout</a>
+                <dmx-theme-changer id="changer1"></dmx-theme-changer>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="bg-body-tertiary h-100 py-3 py-md-5" style="min-height: calc(100vh - 74px - 56px);">
+    <div is="dmx-view" id="content" class="container">
+      <%- await include(content, locals); %>
+    </div>
+  </div>
+
+  <footer class="bg-body-tertiary wappler-block">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <nav class="navbar navbar-expand-lg navbar-light p-0">
+            <div class="container-fluid px-0">
+              <a class="navbar-brand" href="/secrets" internal="true" title="Secrets - Secure Share"><span>🔐</span>Secure Share</a>
+              <a href="http://slashash.co" target="_blank" title="Designed &amp; Developed by Slashash Tech LLP" ref="noopener" class="navbar-text p-2 small ms-auto">
+                <img alt="Designed &amp; Developed by Slashash Tech LLP" id="logoImg">
+              </a>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/node-forge@1.3.1/dist/forge.all.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tweetnacl/1.0.2/nacl-fast.min.js" integrity="sha512-aLSwsdjU35MF6PERT7Pic3+X6qL7O+Us8hYQl/gjrPoV4JXUNoCF2Ys3/vfJSiBW1QNxz2WTr4tEo5VcOdHt/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.2.146/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.2.146/pdf.worker.min.js"></script>
+  <script src="/js/custom.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+            const logoImg = document.getElementById('logoImg');
+            
+                // Check if light mode is preferred by the user
+                const lightModeQuery = window.matchMedia('(prefers-color-scheme: light)');
+                if (lightModeQuery.matches) {
+                    // User prefers light mode
+                      document.getElementById("logoImg").src="https://slashash.co/i/made_by_SLASHASH.svg";
+
+                } else {
+                    // User prefers dark mode (or the system doesn't support theme detection)
+                     document.getElementById("logoImg").src="https://slashash.co/i/made_by_SLASHASH2.svg";
+
+                }
+        });
+  </script>
+  <script src="/bootstrap/5/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

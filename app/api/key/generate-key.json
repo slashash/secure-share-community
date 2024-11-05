@@ -1,0 +1,96 @@
+{
+  "meta": {
+    "options": {
+      "linkedForm": "formManageUser"
+    }
+  },
+  "exec": {
+    "steps": [
+      {
+        "name": "",
+        "module": "auth",
+        "action": "restrict",
+        "options": {
+          "provider": "security",
+          "permissions": [],
+          "loginUrl": "/",
+          "forbiddenUrl": "/403-forbidden"
+        }
+      },
+      {
+        "name": "",
+        "module": "core",
+        "action": "trycatch",
+        "options": {
+          "try": {
+            "steps": [
+              {
+                "name": "xGenerateKeys",
+                "module": "generateKey",
+                "action": "generateKey",
+                "options": {
+                  "keytype": "{{$_GET.key_type}}"
+                },
+                "output": true
+              },
+              {
+                "name": "xLog",
+                "module": "SALog",
+                "action": "CreateLog",
+                "options": {
+                  "connection": "db",
+                  "logMode": true,
+                  "inputParams": "",
+                  "outputParams": "",
+                  "serverActionName": "{{$_SERVER.PATH_INFO}}",
+                  "requestURL": "{{$_SERVER.BASE_URL}}",
+                  "errors": "",
+                  "startedOn": "{{varStartTime}}",
+                  "completedOn": "{{NOW_UTC}}",
+                  "remarks": "",
+                  "sessionGUID": "{{varSessionGUID}}",
+                  "userIdentity": "{{identity}}"
+                },
+                "meta": [
+                  {
+                    "name": "log",
+                    "type": "array"
+                  }
+                ]
+              }
+            ]
+          },
+          "catch": {
+            "steps": {
+              "name": "xLogErr",
+              "module": "SALog",
+              "action": "CreateLog",
+              "options": {
+                "connection": "db",
+                "logMode": true,
+                "inputParams": "",
+                "outputParams": "",
+                "serverActionName": "{{$_SERVER.PATH_INFO}}",
+                "requestURL": "{{$_SERVER.BASE_URL}}",
+                "errors": "{{$_ERROR}}",
+                "startedOn": "{{varStartTime}}",
+                "completedOn": "{{NOW_UTC}}",
+                "remarks": "",
+                "status": 500,
+                "response": "{{varError}}",
+                "sessionGUID": "{{varSessionGUID}}",
+                "userIdentity": "{{identity}}"
+              },
+              "meta": [
+                {
+                  "name": "log",
+                  "type": "array"
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

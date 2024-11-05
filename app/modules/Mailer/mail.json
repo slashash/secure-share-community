@@ -1,0 +1,12 @@
+{
+  "name": "mail",
+  "module": "mail",
+  "action": "setup",
+  "options": {
+    "host": "{{$_ENV.SMTP_HOST}}",
+    "password": "{{$_ENV.SMTP_PASS}}",
+    "username": "{{$_ENV.SMTP_USER}}",
+    "port": "{{$_ENV.SMTP_PORT}}",
+    "useSSL": true
+  }
+}

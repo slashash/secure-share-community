@@ -1,0 +1,19 @@
+{
+  "name": "",
+  "module": "core",
+  "action": "condition",
+  "options": {
+    "if": "{{identity}}",
+    "then": {
+      "steps": {
+        "name": "home",
+        "module": "core",
+        "action": "redirect",
+        "options": {
+          "url": "/secrets"
+        }
+      }
+    }
+  },
+  "outputType": "boolean"
+}

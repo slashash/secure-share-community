@@ -1,0 +1,20 @@
+{
+  "name": "db",
+  "module": "dbconnector",
+  "action": "connect",
+  "options": {
+    "client": "postgres",
+    "connection": {
+      "host": "{{$_ENV.DB_HOST}}",
+      "port": "{{$_ENV.DB_PORT}}",
+      "user": "{{$_ENV.DB_USER}}",
+      "password": "{{$_ENV.DB_PASS}}",
+      "database": "{{$_ENV.DB_NAME}}"
+    },
+    "searchPath": [
+      "{{$_ENV.DB_SEARCH_PATH}}"
+    ]
+  },
+  "fileName": "db.json",
+  "serverType": "node"
+}

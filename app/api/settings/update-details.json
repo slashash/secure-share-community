@@ -1,0 +1,235 @@
+{
+  "meta": {
+    "options": {
+      "linkedForm": "formResetPass"
+    },
+    "$_POST": [
+      {
+        "type": "text",
+        "fieldName": "token",
+        "options": {
+          "rules": {}
+        },
+        "name": "token"
+      },
+      {
+        "type": "text",
+        "fieldName": "pass",
+        "options": {
+          "rules": {
+            "core:minlength": {
+              "param": 8
+            }
+          }
+        },
+        "name": "pass"
+      },
+      {
+        "type": "text",
+        "fieldName": "pass_confirm",
+        "options": {
+          "rules": {
+            "core:equalTo": {
+              "param": "pass"
+            }
+          }
+        },
+        "name": "pass_confirm"
+      },
+      {
+        "type": "text",
+        "name": "user_id"
+      },
+      {
+        "type": "text",
+        "options": {
+          "rules": {}
+        },
+        "name": "first_name"
+      },
+      {
+        "type": "text",
+        "name": "last_name"
+      }
+    ]
+  },
+  "exec": {
+    "steps": {
+      "name": "",
+      "module": "core",
+      "action": "trycatch",
+      "options": {
+        "try": {
+          "steps": [
+            {
+              "name": "",
+              "module": "core",
+              "action": "condition",
+              "options": {
+                "if": "{{$_POST.pass}}",
+                "then": {
+                  "steps": {
+                    "name": "hash",
+                    "module": "crypto",
+                    "action": "passwordHash",
+                    "options": {
+                      "password": "{{$_POST.pass}}",
+                      "algo": "argon2id"
+                    },
+                    "outputType": "text"
+                  }
+                }
+              },
+              "outputType": "boolean"
+            },
+            {
+              "name": "uPass",
+              "module": "dbupdater",
+              "action": "update",
+              "options": {
+                "connection": "db",
+                "sql": {
+                  "type": "update",
+                  "values": [
+                    {
+                      "table": "m_user",
+                      "column": "pass",
+                      "type": "text",
+                      "value": "{{hash}}",
+                      "condition": "{{hash}}"
+                    },
+                    {
+                      "table": "app.m_user",
+                      "column": "first_name",
+                      "type": "text",
+                      "value": "{{$_POST.first_name}}",
+                      "condition": "{{$_POST.first_name}}"
+                    },
+                    {
+                      "table": "app.m_user",
+                      "column": "last_name",
+                      "type": "text",
+                      "value": "{{$_POST.last_name}}",
+                      "condition": "{{$_POST.last_name}}"
+                    }
+                  ],
+                  "table": "app.m_user",
+                  "returning": "user_id",
+                  "query": "update \"app\".\"m_user\" set \"pass\" = ?, \"first_name\" = ?, \"last_name\" = ? where \"user_id\" = ? returning \"user_id\"",
+                  "params": [
+                    {
+                      "name": ":P1",
+                      "type": "expression",
+                      "value": "{{hash}}",
+                      "test": ""
+                    },
+                    {
+                      "name": ":P2",
+                      "type": "expression",
+                      "value": "{{$_POST.first_name}}",
+                      "test": ""
+                    },
+                    {
+                      "name": ":P3",
+                      "type": "expression",
+                      "value": "{{$_POST.last_name}}",
+                      "test": ""
+                    },
+                    {
+                      "operator": "equal",
+                      "type": "expression",
+                      "name": ":P4",
+                      "value": "{{$_POST.user_id}}",
+                      "test": ""
+                    }
+                  ],
+                  "wheres": {
+                    "condition": "OR",
+                    "rules": [
+                      {
+                        "id": "user_id",
+                        "field": "user_id",
+                        "type": "string",
+                        "operator": "equal",
+                        "value": "{{$_POST.user_id}}",
+                        "data": {
+                          "column": "user_id"
+                        },
+                        "operation": "="
+                      }
+                    ],
+                    "conditional": null,
+                    "valid": true
+                  }
+                }
+              },
+              "meta": [
+                {
+                  "name": "affected",
+                  "type": "number"
+                }
+              ]
+            },
+            {
+              "name": "xLog",
+              "module": "SALog",
+              "action": "CreateLog",
+              "options": {
+                "connection": "db",
+                "logMode": true,
+                "inputParams": "{{$_POST.obfuscateJson('pass')}}",
+                "outputParams": "",
+                "serverActionName": "{{$_SERVER.PATH_INFO}}",
+                "requestURL": "{{$_SERVER.BASE_URL}}",
+                "errors": "",
+                "startedOn": "{{varStartTime}}",
+                "completedOn": "{{NOW_UTC}}",
+                "remarks": "",
+                "sessionGUID": "{{varSessionGUID}}",
+                "userIdentity": "{{identity}}"
+              },
+              "meta": [
+                {
+                  "name": "log",
+                  "type": "array"
+                }
+              ]
+            }
+          ]
+        },
+        "catch": {
+          "steps": {
+            "name": "xLogErr",
+            "module": "SALog",
+            "action": "CreateLog",
+            "options": {
+              "connection": "db",
+              "logMode": true,
+              "inputParams": "{{$_POST.obfuscateJson('pass')}}",
+              "outputParams": "",
+              "serverActionName": "{{$_SERVER.PATH_INFO}}",
+              "requestURL": "{{$_SERVER.BASE_URL}}",
+              "errors": "{{$_ERROR}}",
+              "startedOn": "{{varStartTime}}",
+              "completedOn": "{{NOW_UTC}}",
+              "remarks": "",
+              "status": 500,
+              "response": "{{varError}}",
+              "sessionGUID": "{{varSessionGUID}}",
+              "userIdentity": "{{identity}}"
+            },
+            "meta": [
+              {
+                "name": "log",
+                "type": "array"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "usedModules": {
+    "argon2": "^0.30.2"
+  }
+}

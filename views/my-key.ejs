@@ -1,0 +1,67 @@
+<!-- Wappler include head-page="layouts/main" bootstrap5="local" is="dmx-app" id="mykey" appConnect="local" components="{dmxBootstrap5Modal:{},dmxDropzone:{},dmxValidator:{},dmxBootstrap5Tooltips:{}}" -->
+<meta name="ac:route" content="/my-key">
+<dmx-serverconnect id="scGenerateKeys" url="/api/key/generate-key" noload="true" dmx-on:success="notif.success('Key generated successfully.')" dmx-on:unauthorized="browser1.goto('/')" dmx-on:error="notif.danger(lastError.response)" dmx-on:forbidden="browser1.goto('/403-forbidden')"></dmx-serverconnect>
+<dmx-value id="varIsKeyInvalid"></dmx-value>
+<dmx-value id="varDisabledPubKeyButtons" dmx-bind:value="true"></dmx-value>
+<dmx-value id="varDisabledUploadKeyButton" dmx-bind:value="true"></dmx-value>
+<dmx-value id="varIsPrimaryButton" dmx-bind:value="0"></dmx-value>
+
+<div class="card shadow">
+  <div class="card-body py-5 d-flex flex-column align-items-center">
+    <textarea id="txtPrivateKey" dmx-bind:value="scGenerateKeys.data.xGenerateKeys.privateKeyPem" hidden="true"></textarea>
+    <textarea id="txtPublicKey" class="form-control" rows="10" title="public-key" readonly="readonly" dmx-bind:value="scGenerateKeys.data.xGenerateKeys.publicKeyPem" hidden="true"></textarea>
+    <h6 class="text-center py-2 col-10 col-lg-8 col-xxl-6">
+      Before you can start adding secrets to your Secure Share account, you need to provide a public key that will be used to encrypt all your secrets.
+      <br />
+      <br />
+      You can either upload an existing public key (PEM), or generate a new key-pair and use that.
+    </h6>
+    <div class="align-items-center d-flex flex-column flex-md-row justify-content-center my-3">
+      <div class="align-items-center d-flex flex-column flex-md-row justify-content-center" dmx-show="scGenerateKeys.data.xGenerateKeys">
+        <button id="btnDownloadPrivatekey" dmx-bind:class="'btn '+ (varIsPrimaryButton.value == 0 ? 'btn-primary':'btn-outline-primary')" dmx-on:click="run([{runJS:{outputType:'text',function:'downloadPrivateKey'}},{run:{outputType:'text',action:`varIsPrimaryButton.setValue(1)`}}])">Download Private Key</button>
+        <span class="mx-4 d-none d-sm-inline-block"><i class="bi bi-chevron-right"></i></span>
+        <span class="my-2 d-md-none"><i class="bi bi-chevron-down"></i></span>
+        <div dmx-bs-tooltip="varDisabledPubKeyButtons.value==true?'Please first download private key to enable this option!':''" data-bs-placement="bottom">
+          <button id="btnDownloadPublickey" dmx-bind:class="'btn '+ (varIsPrimaryButton.value == 1 ? 'btn-primary':'btn-outline-primary')" dmx-bind:disabled="varDisabledPubKeyButtons.value==true" dmx-bs-tooltip="content.varDisabledPubKeyButtons.value==true?'Please first download private key to enable this option!':''" dmx-on:click="run([{runJS:{outputType:'text',function:'downloadPublicKey'}},{run:{outputType:'text',action:`varDisabledUploadKeyButton.setValue(false);varIsPrimaryButton.setValue(2)`}}])">Download Public Key</button>
+        </div>
+        <span class="mx-4 d-none d-sm-inline-block"><i class="bi bi-chevron-right"></i></span>
+        <span class="my-2 d-md-none"><i class="bi bi-chevron-down"></i></span>
+      </div>
+      <div class="align-items-center d-md-flex justify-content-center">
+        <div dmx-bs-tooltip="(varDisabledUploadKeyButton.value == true &amp;&amp; scGenerateKeys.data.xGenerateKeys)?'Please first download public key to enable this option!':''" data-bs-placement="bottom" class="text-center">
+          <button dmx-bind:class="'btn '+ (!scGenerateKeys.data.xGenerateKeys ? 'btn-primary':varIsPrimaryButton.value == 2 ? 'btn-primary':'btn-outline-primary')" type="button" data-bs-target="#modalAddKeys" dmx-show="!scUsers.data.qLoginUser.pub_key" dmx-bind:disabled="varDisabledUploadKeyButton.value==true&amp;&amp;scGenerateKeys.data.xGenerateKeys" dmx-on:click="run({condition:{outputType:'boolean',if:`scGenerateKeys.data.xGenerateKeys`,then:{steps:{run:{outputType:'text',action:`modalAddKeys.formAddKeys.submit()`}}},else:{steps:{run:{outputType:'text',action:`modalAddKeys.show()`}}}}})">
+            {{scGenerateKeys.data.xGenerateKeys ? 'Save Generated Key' : 'Upload Public Key'}}
+          </button>
+        </div>
+        <button class="btn btn-primary mx-md-3 mt-3 mt-md-0" type="button" dmx-on:click="run({run:{outputType:'text',action:`scGenerateKeys.load({})`}})" dmx-bind:disabled="scGenerateKeys.state.executing" dmx-hide="scGenerateKeys.data.xGenerateKeys">Generate Key Pair <span class="spinner-border spinner-border-sm" role="status" dmx-show="scGenerateKeys.state.executing"></span> </button>
+      </div>
+    </div>
+    <button class="btn btn-link text-secondary" dmx-show="scGenerateKeys.data.xGenerateKeys" dmx-on:click="browser1.reload()">Use My Key</button>
+  </div>
+</div>
+
+<div class="modal fade" id="modalAddKeys" is="dmx-bs5-modal" tabindex="-1" dmx-bind:show="varSession.value==false" nocloseonclick="true" nokeyboard="true" dmx-on:hide-bs-modal="formAddKeys.reset();varIsKeyInvalid.setValue()">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Public Key</h5>
+        <button type="button" dmx-bind:disabled="formAddKeys.state.executing" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formAddKeys" method="post" is="dmx-serverconnect-form" action="/api/key/add" dmx-on:success="notif.success('Public key uploaded.');modalAddKeys.hide();browser1.goto('/secrets',true,'Secrets - Secure Share')" dmx-on:unauthorized="browser1.goto('/')" dmx-on:forbidden="browser1.goto('/403-forbidden')" dmx-on:error="notif.danger(lastError.response)" dmx-on:invalid="notif.warning(lastError.response ? json(lastError.response) : 'Please check all inputs.')">
+          <div class="mb-2">
+            <label for="txtUploadPublicKey" class="form-label">Public Key *</label>
+            <div>
+              <textarea id="txtUploadPublicKey" name="pub_key" class="form-control" rows="10" title="public-key" onchanged="validateKey()" required="" dmx-bind:value="scGenerateKeys.data.xGenerateKeys.publicKeyPem" placeholder="-----BEGIN PUBLIC KEY-----"></textarea>
+            </div>
+          </div>
+          <div id="result" dmx-class:text-success="varIsKeyInvalid.value=='false'" dmx-class:text-danger="varIsKeyInvalid.value=='true'" dmx-show="varIsKeyInvalid.value"><span><i dmx-bind:class="'bi me-2 '+ (varIsKeyInvalid.value=='true' ? 'bi-x-circle-fill' : 'bi-check-circle-fill')"></i></span>{{varIsKeyInvalid.value=='true'?'Invalid RSA Public Key':'Valid RSA Public Key'}}</div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button id="btnCancel" class="btn btn-outline-secondary" data-bs-dismiss="modal" dmx-bind:disabled="formAddKeys.state.executing">Cancel</button>
+        <button id="btnAddSecret" type="submit" dmx-on:click="formAddKeys.submit()" class="btn btn-primary" dmx-bind:disabled="varIsKeyInvalid.value=='true'||formAddKeys.state.executing">Upload<span class="spinner-border spinner-border-sm ms-2" role="status" dmx-show="formShareData.state.executing"></span></button>
+      </div>
+    </div>
+  </div>
+</div>

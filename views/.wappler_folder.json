@@ -1,0 +1,38 @@
+{
+  "login.ejs": {
+    "layoutPage": "access",
+    "description": ""
+  },
+  "reset-password.ejs": {
+    "layoutPage": "access",
+    "description": ""
+  },
+  "signup.ejs": {
+    "layoutPage": "access",
+    "description": ""
+  },
+  "index.ejs": {
+    "layoutPage": "main",
+    "description": ""
+  },
+  "secrets.ejs": {
+    "layoutPage": "main",
+    "description": ""
+  },
+  "403-forbidden.ejs": {
+    "layoutPage": "access",
+    "description": ""
+  },
+  "keys.ejs": {
+    "layoutPage": "main",
+    "description": ""
+  },
+  "my-key.ejs": {
+    "layoutPage": "main",
+    "description": ""
+  },
+  "settings.ejs": {
+    "layoutPage": "main",
+    "description": ""
+  }
+}

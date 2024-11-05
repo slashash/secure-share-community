@@ -1,0 +1,313 @@
+{
+  "meta": {
+    "options": {
+      "linkedFile": "/views/login.ejs",
+      "linkedForm": "formLogin"
+    },
+    "$_POST": [
+      {
+        "type": "text",
+        "fieldName": "email",
+        "options": {
+          "rules": {
+            "core:required": {
+              "param": ""
+            },
+            "core:email": {}
+          }
+        },
+        "name": "email"
+      },
+      {
+        "type": "text",
+        "fieldName": "password",
+        "options": {
+          "rules": {
+            "core:required": {
+              "param": ""
+            },
+            "core:maxlength": {
+              "param": "32"
+            }
+          }
+        },
+        "name": "password"
+      },
+      {
+        "type": "text",
+        "fieldName": "remember",
+        "name": "remember"
+      }
+    ]
+  },
+  "exec": {
+    "steps": {
+      "name": "",
+      "module": "core",
+      "action": "trycatch",
+      "options": {
+        "try": {
+          "steps": [
+            {
+              "name": "qIsLoginDisabled",
+              "module": "dbconnector",
+              "action": "single",
+              "options": {
+                "connection": "db",
+                "sql": {
+                  "type": "select",
+                  "columns": [
+                    {
+                      "table": "MU",
+                      "column": "login_disabled_on"
+                    }
+                  ],
+                  "params": [
+                    {
+                      "operator": "equal",
+                      "type": "expression",
+                      "name": ":P1",
+                      "value": "{{$_POST.email}}",
+                      "test": ""
+                    }
+                  ],
+                  "table": {
+                    "name": "m_user",
+                    "schema": "app",
+                    "alias": "MU"
+                  },
+                  "primary": "user_id",
+                  "joins": [],
+                  "wheres": {
+                    "condition": "AND",
+                    "rules": [
+                      {
+                        "id": "MU.email_id",
+                        "field": "MU.email_id",
+                        "type": "string",
+                        "operator": "equal",
+                        "value": "{{$_POST.email}}",
+                        "data": {
+                          "table": "MU",
+                          "column": "email_id",
+                          "type": "text",
+                          "columnObj": {
+                            "type": "string",
+                            "maxLength": 254,
+                            "primary": false,
+                            "unique": true,
+                            "nullable": false,
+                            "name": "email_id"
+                          }
+                        },
+                        "operation": "="
+                      }
+                    ],
+                    "conditional": null,
+                    "valid": true
+                  },
+                  "query": "select \"login_disabled_on\" from \"app\".\"m_user\" as \"MU\" where \"MU\".\"email_id\" = ?"
+                }
+              },
+              "output": false,
+              "meta": [
+                {
+                  "type": "datetime",
+                  "name": "login_disabled_on"
+                }
+              ],
+              "outputType": "object"
+            },
+            {
+              "name": "",
+              "module": "core",
+              "action": "condition",
+              "options": {
+                "if": "{{qIsLoginDisabled.login_disabled_on}}",
+                "then": {
+                  "steps": {
+                    "name": "xLogDisabled",
+                    "module": "SALog",
+                    "action": "CreateLog",
+                    "options": {
+                      "logMode": true,
+                      "connection": "db",
+                      "inputParams": "{{$_POST.obfuscateJson('password')}}",
+                      "outputParams": "",
+                      "serverActionName": "{{$_SERVER.PATH_INFO}}",
+                      "requestURL": "{{$_SERVER.BASE_URL}}",
+                      "errors": "",
+                      "startedOn": "{{varStartTime}}",
+                      "completedOn": "{{NOW_UTC}}",
+                      "remarks": "",
+                      "sessionGUID": "{{varSessionGUID}}",
+                      "userIdentity": "{{identity}}",
+                      "status": 403
+                    },
+                    "meta": [
+                      {
+                        "name": "log",
+                        "type": "array"
+                      }
+                    ]
+                  }
+                }
+              },
+              "outputType": "boolean"
+            },
+            {
+              "name": "identity",
+              "module": "auth",
+              "action": "login",
+              "options": {
+                "provider": "security",
+                "username": "{{$_POST.email}}"
+              },
+              "output": false,
+              "meta": []
+            },
+            {
+              "name": "",
+              "module": "auth",
+              "action": "restrict",
+              "options": {
+                "provider": "security",
+                "permissions": [
+                  "admin"
+                ]
+              }
+            },
+            {
+              "name": "uUser",
+              "module": "dbupdater",
+              "action": "update",
+              "options": {
+                "connection": "db",
+                "sql": {
+                  "type": "update",
+                  "values": [
+                    {
+                      "table": "app.m_user",
+                      "column": "last_login_on",
+                      "type": "datetime",
+                      "value": "{{NOW_UTC}}",
+                      "recid": 1
+                    }
+                  ],
+                  "table": "app.m_user",
+                  "wheres": {
+                    "condition": "AND",
+                    "rules": [
+                      {
+                        "id": "user_id",
+                        "field": "user_id",
+                        "type": "string",
+                        "operator": "equal",
+                        "value": "{{identity}}",
+                        "data": {
+                          "column": "user_id"
+                        },
+                        "operation": "="
+                      }
+                    ],
+                    "conditional": null,
+                    "valid": true
+                  },
+                  "returning": "user_id",
+                  "query": "update \"app\".\"m_user\" set \"last_login_on\" = ? where \"user_id\" = ? returning \"user_id\"",
+                  "params": [
+                    {
+                      "name": ":P1",
+                      "type": "expression",
+                      "value": "{{NOW_UTC}}",
+                      "test": ""
+                    },
+                    {
+                      "operator": "equal",
+                      "type": "expression",
+                      "name": ":P2",
+                      "value": "{{identity}}",
+                      "test": ""
+                    }
+                  ]
+                }
+              },
+              "meta": [
+                {
+                  "name": "affected",
+                  "type": "number"
+                }
+              ]
+            },
+            {
+              "name": "varDefaultPage",
+              "module": "core",
+              "action": "setvalue",
+              "options": {
+                "key": "varDefaultPage",
+                "value": "/secrets"
+              },
+              "meta": [],
+              "outputType": "text",
+              "output": true
+            },
+            {
+              "name": "xLog",
+              "module": "SALog",
+              "action": "CreateLog",
+              "options": {
+                "logMode": true,
+                "connection": "db",
+                "inputParams": "{{$_POST.obfuscateJson('password')}}",
+                "outputParams": "",
+                "serverActionName": "{{$_SERVER.PATH_INFO}}",
+                "requestURL": "{{$_SERVER.BASE_URL}}",
+                "errors": "",
+                "startedOn": "{{varStartTime}}",
+                "completedOn": "{{NOW_UTC}}",
+                "remarks": "",
+                "sessionGUID": "{{varSessionGUID}}",
+                "userIdentity": "{{identity}}"
+              },
+              "meta": [
+                {
+                  "name": "log",
+                  "type": "array"
+                }
+              ]
+            }
+          ]
+        },
+        "catch": {
+          "steps": {
+            "name": "xLogErr",
+            "module": "SALog",
+            "action": "CreateLog",
+            "options": {
+              "logMode": true,
+              "connection": "db",
+              "inputParams": "{{$_POST.obfuscateJson('password')}}",
+              "outputParams": "",
+              "serverActionName": "{{$_SERVER.PATH_INFO}}",
+              "requestURL": "{{$_SERVER.BASE_URL}}",
+              "errors": "{{$_ERROR}}",
+              "startedOn": "{{varStartTime}}",
+              "completedOn": "{{NOW_UTC}}",
+              "remarks": "",
+              "status": 500,
+              "response": "{{varError}}",
+              "sessionGUID": "{{varSessionGUID}}",
+              "userIdentity": "{{identity}}"
+            },
+            "meta": [
+              {
+                "name": "log",
+                "type": "array"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

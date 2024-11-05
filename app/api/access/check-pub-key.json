@@ -1,0 +1,170 @@
+{
+  "meta": {
+    "$_SERVER": [
+      {
+        "type": "text",
+        "name": "PATH_INFO"
+      },
+      {
+        "type": "text",
+        "name": "HTTP_REFERER"
+      },
+      {
+        "type": "text",
+        "name": "URL"
+      }
+    ]
+  },
+  "exec": {
+    "steps": [
+      {
+        "name": "",
+        "module": "auth",
+        "action": "restrict",
+        "options": {
+          "provider": "security",
+          "permissions": [],
+          "loginUrl": "/",
+          "forbiddenUrl": "/403-forbidden"
+        }
+      },
+      {
+        "name": "qGetUserInfo",
+        "module": "dbconnector",
+        "action": "single",
+        "options": {
+          "connection": "db",
+          "sql": {
+            "type": "select",
+            "columns": [
+              {
+                "table": "MU",
+                "column": "user_id",
+                "recid": 1
+              },
+              {
+                "table": "MU",
+                "column": "is_admin",
+                "recid": 2
+              },
+              {
+                "table": "MU",
+                "column": "pub_key",
+                "recid": 3
+              }
+            ],
+            "params": [
+              {
+                "operator": "equal",
+                "type": "expression",
+                "name": ":P1",
+                "value": "{{identity}}",
+                "test": "5a8a1a1d-1b6c-49a9-9286-3c150161a76f"
+              }
+            ],
+            "table": {
+              "name": "m_user",
+              "schema": "app",
+              "alias": "MU"
+            },
+            "primary": "user_id",
+            "joins": [],
+            "query": "select \"user_id\", \"is_admin\", \"pub_key\" from \"app\".\"m_user\" as \"MU\" where \"MU\".\"user_id\" = ?",
+            "wheres": {
+              "condition": "AND",
+              "rules": [
+                {
+                  "id": "MU.user_id",
+                  "field": "MU.user_id",
+                  "type": "string",
+                  "operator": "equal",
+                  "value": "{{identity}}",
+                  "data": {
+                    "table": "MU",
+                    "column": "user_id",
+                    "type": "text",
+                    "columnObj": {
+                      "type": "uuid",
+                      "default": "gen_random_uuid()",
+                      "primary": true,
+                      "unique": true,
+                      "nullable": false,
+                      "name": "user_id"
+                    }
+                  },
+                  "operation": "=",
+                  "table": "m_user"
+                }
+              ],
+              "conditional": null,
+              "valid": true
+            }
+          }
+        },
+        "output": false,
+        "meta": [
+          {
+            "type": "text",
+            "name": "user_id"
+          },
+          {
+            "type": "text",
+            "name": "pub_key"
+          }
+        ],
+        "outputType": "object"
+      },
+      {
+        "name": "",
+        "module": "core",
+        "action": "condition",
+        "options": {
+          "if": "{{!qGetUserInfo.pub_key}}",
+          "then": {
+            "steps": {
+              "name": "",
+              "module": "core",
+              "action": "condition",
+              "options": {
+                "if": "{{$_SERVER.URL!='/my-key'}}",
+                "then": {
+                  "steps": {
+                    "name": "redirect",
+                    "module": "core",
+                    "action": "redirect",
+                    "options": {
+                      "url": "/my-key"
+                    }
+                  }
+                }
+              },
+              "outputType": "boolean"
+            }
+          },
+          "else": {
+            "steps": {
+              "name": "",
+              "module": "core",
+              "action": "condition",
+              "options": {
+                "if": "{{$_SERVER.URL=='/my-key'}}",
+                "then": {
+                  "steps": {
+                    "name": "redirect_copy_copy",
+                    "module": "core",
+                    "action": "redirect",
+                    "options": {
+                      "url": "/secrets"
+                    }
+                  }
+                }
+              },
+              "outputType": "boolean"
+            }
+          }
+        },
+        "outputType": "boolean"
+      }
+    ]
+  }
+}

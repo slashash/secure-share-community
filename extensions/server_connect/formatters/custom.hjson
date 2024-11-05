@@ -1,0 +1,18 @@
+{
+  type: 'method_obfuscateJson',
+  groupTitle: 'Custom',
+  groupIcon: 'fa fa-lg fa-anchor',
+  addTitle: 'Text Obfuscate',
+  title: 'Text Obfuscate',
+  icon: 'fa fa-lg fa-pump-soap',
+  state: 'opened',
+  help: 'You can Obfuscate value of one or more then one key'
+  properties : [
+    {
+      group: 'input',
+      variables: [
+        { name: 'key', optionName: 'key', title: 'Key', type: 'text', required: true, defaultValue: '',help: 'Enter one or more key with comma seperation.'}
+      ]
+    }
+  ]
+}

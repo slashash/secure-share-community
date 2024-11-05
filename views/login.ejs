@@ -1,0 +1,64 @@
+<!-- Wappler include head-page="layouts/access" is="dmx-app" id="login" appconnect="local" bootstrap_icons="local" components="{dmxValidator:{}}" -->
+<meta name="ac:route" content="/">
+<script>
+  function removeSession() {
+  sessionStorage.removeItem('private_key')
+}
+</script>
+<script is="dmx-flow" id="flowRemoveSessionStorage" type="text/dmx-flow" autorun="true">{
+  runJS: {outputType: "text", function: "removeSession"}
+}</script>
+
+<dmx-value id="varLoginReset" dmx-bind:value="'Login'"></dmx-value>
+<dmx-value id="passType" dmx-bind:value="'password'"></dmx-value>
+<div class="d-flex justify-content-center vh-100 align-items-center flex-column">
+  <h2><span>🔐</span>Secure Share</h2>
+  <div id="crLogin" is="dmx-if" dmx-bind:condition="(varLoginReset.value == 'Login')">
+    <div class="card p-3 shadow">
+      <div class="card-body">
+        <h3 class="card-title my-3">Login</h3>
+        <form id="formLogin" method="post" is="dmx-serverconnect-form" action="/api/access/login" dmx-on:error="notif.danger(lastError.message)" dmx-on:forbidden="browser1.goto('/403-forbidden')" dmx-on:success="browser1.goto(formLogin.data.varDefaultPage)" dmx-on:unauthorized="notif.warning('Unauthorized. Please check your username and password.')">
+          <div class="mb-3">
+            <label for="txtEmail" class="form-label">Email</label>
+            <input type="email" class="form-control" id="txtEmail" name="email" required="">
+          </div>
+          <label for="txtPass" class="form-label">Password</label>
+          <div class="input-group mb-3">
+            <div>
+              <input dmx-bind:type="passType.value" class="form-control rounded-end-0" id="txtPass" name="password" required="" maxlength="32">
+            </div>
+            <span class="bg-body-tertiary rounded-end"><button class="btn small text-start border-0" dmx-on:click="passType.setValue((passType.value == 'password' ? 'text' : 'password'))">
+                <i dmx-class:bi-eye-fill="(passType.value == 'password')" dmx-class:bi-eye-slash-fill="(passType.value == 'text')"></i> </button></span>
+          </div>
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="cbRemember" tabindex="3" value="1" name="remember" />
+            <label class="form-check-label" for="cbRemember">Remember Me</label>
+          </div>
+          <button class="btn btn-primary w-100 mb-2" type="submit" dmx-bind:disabled="state.executing || status == 200">Login
+            <span class="spinner-border spinner-border-sm ms-2" role="status" dmx-show="state.executing"></span></button>
+        </form>
+        <div class="d-flex justify-content-center">
+          <a href="javascript:void(0);" dmx-on:click="varLoginReset.setValue('ResetPassword')" id="linkForget">Forgot Password</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="crReset" is="dmx-if" dmx-bind:condition="(varLoginReset.value == 'ResetPassword')" class="p-4 pt-0">
+    <div class="card shadow p-3">
+      <div class="card-body">
+        <h4 class="card-title">Forgot Password?</h4>
+        <p class="card-text">Submit your registered email to reset your password.</p>
+        <form id="formResetPassword" is="dmx-serverconnect-form" method="post" action="/api/access/forgot-password" dmx-on:success="varLoginReset.setValue('Login');notif.info('If your email is registered with us, you\'ll receive an email with instructions to reset password.')">
+          <div class="mb-3">
+            <label for="txtForgotPassEmail" class="form-label">Registered Email ID</label>
+            <input type="email" class="form-control mb-3" id="txtForgotPassEmail" name="email" required="" data-rule-email="">
+          </div>
+          <div class="d-flex justify-content-center">
+            <button class="btn btn-outline-secondary" dmx-on:click="varLoginReset.setValue('Login')" dmx-bind:disabled="state.executing">Cancel</button>
+            <button class="btn btn-primary ms-3" type="submit" dmx-bind:disabled="state.executing || status == 200">Submit<span class="spinner-border spinner-border-sm ms-2" role="status" dmx-show="state.executing"></span></button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

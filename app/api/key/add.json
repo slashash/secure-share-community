@@ -1,0 +1,309 @@
+{
+  "meta": {
+    "options": {
+      "linkedFile": "/views/my-key.ejs",
+      "linkedForm": "formAddKeys"
+    },
+    "$_POST": [
+      {
+        "type": "text",
+        "fieldName": "pub_key",
+        "options": {
+          "rules": {
+            "core:required": {
+              "param": ""
+            }
+          }
+        },
+        "name": "pub_key"
+      }
+    ]
+  },
+  "exec": {
+    "steps": [
+      {
+        "name": "",
+        "module": "auth",
+        "action": "restrict",
+        "options": {
+          "provider": "security",
+          "permissions": []
+        }
+      },
+      {
+        "name": "",
+        "module": "core",
+        "action": "trycatch",
+        "options": {
+          "try": {
+            "steps": [
+              {
+                "name": "qEmail",
+                "module": "dbconnector",
+                "action": "single",
+                "options": {
+                  "connection": "db",
+                  "sql": {
+                    "type": "select",
+                    "columns": [
+                      {
+                        "table": "MU",
+                        "column": "email_id"
+                      }
+                    ],
+                    "params": [
+                      {
+                        "operator": "equal",
+                        "type": "expression",
+                        "name": ":P1",
+                        "value": "{{identity}}",
+                        "test": "7f62b947-8c7f-44a9-a37b-aefe5fd49e17"
+                      }
+                    ],
+                    "table": {
+                      "name": "m_user",
+                      "schema": "app",
+                      "alias": "MU"
+                    },
+                    "primary": "user_id",
+                    "joins": [],
+                    "wheres": {
+                      "condition": "AND",
+                      "rules": [
+                        {
+                          "id": "MU.user_id",
+                          "field": "MU.user_id",
+                          "type": "string",
+                          "operator": "equal",
+                          "value": "{{identity}}",
+                          "data": {
+                            "table": "MU",
+                            "column": "user_id",
+                            "type": "text",
+                            "columnObj": {
+                              "type": "uuid",
+                              "default": "gen_random_uuid()",
+                              "primary": true,
+                              "unique": true,
+                              "nullable": false,
+                              "name": "user_id"
+                            }
+                          },
+                          "operation": "="
+                        }
+                      ],
+                      "conditional": null,
+                      "valid": true
+                    },
+                    "query": "select \"email_id\" from \"app\".\"m_user\" as \"MU\" where \"MU\".\"user_id\" = ?"
+                  }
+                },
+                "meta": [
+                  {
+                    "type": "text",
+                    "name": "email_id"
+                  }
+                ],
+                "outputType": "object"
+              },
+              {
+                "name": "encryptSecret",
+                "module": "cryptography",
+                "action": "encryptData",
+                "options": {
+                  "plainText": "{{qEmail.email_id}}",
+                  "pubKey": "{{$_POST.pub_key}}"
+                },
+                "output": false,
+                "meta": [
+                  {
+                    "name": "encryptedKey",
+                    "type": "text"
+                  },
+                  {
+                    "name": "secretIV",
+                    "type": "text"
+                  },
+                  {
+                    "name": "encryptedData",
+                    "type": "text"
+                  },
+                  {
+                    "name": "error",
+                    "type": "text"
+                  }
+                ]
+              },
+              {
+                "name": "uUserKey",
+                "module": "dbupdater",
+                "action": "update",
+                "options": {
+                  "connection": "db",
+                  "sql": {
+                    "type": "update",
+                    "values": [
+                      {
+                        "table": "app.m_user",
+                        "column": "pub_key",
+                        "type": "text",
+                        "value": "{{$_POST.pub_key}}"
+                      },
+                      {
+                        "table": "app.m_user",
+                        "column": "pub_key_sha_256",
+                        "type": "text",
+                        "value": "{{$_POST.pub_key.sha256()}}"
+                      },
+                      {
+                        "table": "app.m_user",
+                        "column": "encypted_data",
+                        "type": "text",
+                        "value": "{{encryptSecret.encryptedData}}"
+                      },
+                      {
+                        "table": "app.m_user",
+                        "column": "secret_key",
+                        "type": "text",
+                        "value": "{{encryptSecret.encryptedKey}}"
+                      },
+                      {
+                        "table": "app.m_user",
+                        "column": "secret_iv",
+                        "type": "text",
+                        "value": "{{encryptSecret.secretIV}}"
+                      }
+                    ],
+                    "table": "app.m_user",
+                    "wheres": {
+                      "condition": "AND",
+                      "rules": [
+                        {
+                          "id": "user_id",
+                          "field": "user_id",
+                          "type": "string",
+                          "operator": "equal",
+                          "value": "{{identity}}",
+                          "data": {
+                            "column": "user_id"
+                          },
+                          "operation": "="
+                        }
+                      ],
+                      "conditional": null,
+                      "valid": true
+                    },
+                    "returning": "user_id",
+                    "query": "update \"app\".\"m_user\" set \"pub_key\" = ?, \"pub_key_sha_256\" = ?, \"encypted_data\" = ?, \"secret_key\" = ?, \"secret_iv\" = ? where \"user_id\" = ? returning \"user_id\"",
+                    "params": [
+                      {
+                        "name": ":P1",
+                        "type": "expression",
+                        "value": "{{$_POST.pub_key}}",
+                        "test": ""
+                      },
+                      {
+                        "name": ":P2",
+                        "type": "expression",
+                        "value": "{{$_POST.pub_key.sha256()}}",
+                        "test": ""
+                      },
+                      {
+                        "name": ":P3",
+                        "type": "expression",
+                        "value": "{{encryptSecret.encryptedData}}",
+                        "test": ""
+                      },
+                      {
+                        "name": ":P4",
+                        "type": "expression",
+                        "value": "{{encryptSecret.encryptedKey}}",
+                        "test": ""
+                      },
+                      {
+                        "name": ":P5",
+                        "type": "expression",
+                        "value": "{{encryptSecret.secretIV}}",
+                        "test": ""
+                      },
+                      {
+                        "operator": "equal",
+                        "type": "expression",
+                        "name": ":P6",
+                        "value": "{{identity}}",
+                        "test": ""
+                      }
+                    ]
+                  }
+                },
+                "meta": [
+                  {
+                    "name": "affected",
+                    "type": "number"
+                  }
+                ]
+              },
+              {
+                "name": "xLog",
+                "module": "SALog",
+                "action": "CreateLog",
+                "options": {
+                  "connection": "db",
+                  "logMode": true,
+                  "inputParams": "",
+                  "outputParams": "",
+                  "serverActionName": "{{$_SERVER.PATH_INFO}}",
+                  "requestURL": "{{$_SERVER.BASE_URL}}",
+                  "errors": "",
+                  "startedOn": "{{varStartTime}}",
+                  "completedOn": "{{NOW_UTC}}",
+                  "remarks": "",
+                  "sessionGUID": "{{varSessionGUID}}",
+                  "userIdentity": "{{identity}}"
+                },
+                "meta": [
+                  {
+                    "name": "log",
+                    "type": "array"
+                  }
+                ]
+              }
+            ]
+          },
+          "catch": {
+            "steps": {
+              "name": "xLog",
+              "module": "SALog",
+              "action": "CreateLog",
+              "options": {
+                "connection": "db",
+                "logMode": true,
+                "inputParams": "",
+                "outputParams": "",
+                "serverActionName": "{{$_SERVER.PATH_INFO}}",
+                "requestURL": "{{$_SERVER.BASE_URL}}",
+                "errors": "{{$_ERROR}}",
+                "startedOn": "{{varStartTime}}",
+                "completedOn": "{{NOW_UTC}}",
+                "remarks": "",
+                "status": 500,
+                "response": "{{varError}}",
+                "sessionGUID": "{{varSessionGUID}}",
+                "userIdentity": "{{identity}}"
+              },
+              "meta": [
+                {
+                  "name": "log",
+                  "type": "array"
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "usedModules": {
+    "node-forge": "^1.3.1"
+  }
+}

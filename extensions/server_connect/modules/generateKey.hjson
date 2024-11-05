@@ -1,0 +1,20 @@
+[
+    {
+       type: 'generate_key',
+        module: 'generateKey',
+        action: 'generateKey',
+        groupTitle : 'Cryptographic',
+        groupIcon: 'fad fa-key comp-security',
+        title : 'Generate Key',
+        icon : 'fab fa-keycdn comp-security',
+    dataPickObject: true,
+    properties : [
+      {
+        group: 'Properties'
+        variables: [
+          { name: 'name', optionName: 'name', title: 'Name<sup style="color:red">*</sup>', type: 'text', required: true, defaultValue: ''}
+        ]
+      }
+    ],
+  }
+]

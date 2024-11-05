@@ -1,0 +1,274 @@
+{
+  "meta": {
+    "options": {
+      "linkedFile": "/views/users.ejs",
+      "linkedForm": "formDeleteUser"
+    },
+    "$_POST": [
+      {
+        "type": "text",
+        "fieldName": "user_id",
+        "options": {
+          "rules": {
+            "core:required": {
+              "param": ""
+            }
+          }
+        },
+        "name": "user_id"
+      },
+      {
+        "type": "text",
+        "fieldName": "email_id",
+        "options": {
+          "rules": {
+            "core:required": {
+              "param": ""
+            }
+          }
+        },
+        "name": "email_id"
+      }
+    ]
+  },
+  "exec": {
+    "steps": [
+      {
+        "name": "",
+        "module": "auth",
+        "action": "restrict",
+        "options": {
+          "provider": "security",
+          "permissions": [
+            "admin"
+          ],
+          "loginUrl": "/",
+          "forbiddenUrl": "/403-forbidden"
+        }
+      },
+      {
+        "name": "",
+        "module": "core",
+        "action": "trycatch",
+        "options": {
+          "try": {
+            "steps": [
+              {
+                "name": "dUser",
+                "module": "dbupdater",
+                "action": "update",
+                "options": {
+                  "connection": "db",
+                  "sql": {
+                    "type": "update",
+                    "values": [
+                      {
+                        "table": "app.m_user",
+                        "column": "deleted_by",
+                        "type": "text",
+                        "value": "{{identity}}",
+                        "recid": 1
+                      },
+                      {
+                        "table": "app.m_user",
+                        "column": "deleted_on",
+                        "type": "datetime",
+                        "value": "{{NOW_UTC}}",
+                        "recid": 2
+                      },
+                      {
+                        "table": "app.m_user",
+                        "column": "email_id",
+                        "type": "text",
+                        "value": "{{$_POST.email_id+'_deleted_'+NOW_UTC}}",
+                        "recid": 3
+                      },
+                      {
+                        "table": "app.m_user",
+                        "column": "login_disabled_by",
+                        "type": "text",
+                        "value": "{{identity}}",
+                        "recid": 4
+                      },
+                      {
+                        "table": "app.m_user",
+                        "column": "login_disabled_on",
+                        "type": "datetime",
+                        "value": "{{NOW_UTC}}",
+                        "recid": 5
+                      }
+                    ],
+                    "table": "app.m_user",
+                    "wheres": {
+                      "condition": "AND",
+                      "rules": [
+                        {
+                          "id": "user_id",
+                          "type": "string",
+                          "operator": "equal",
+                          "value": "{{$_POST.user_id}}",
+                          "data": {
+                            "column": "user_id"
+                          },
+                          "operation": "="
+                        }
+                      ]
+                    },
+                    "returning": "user_id",
+                    "query": "update \"app\".\"m_user\" set \"deleted_by\" = ?, \"deleted_on\" = ?, \"email_id\" = ?, \"login_disabled_by\" = ?, \"login_disabled_on\" = ? where \"user_id\" = ? returning \"user_id\"",
+                    "params": [
+                      {
+                        "name": ":P1",
+                        "type": "expression",
+                        "value": "{{identity}}",
+                        "test": ""
+                      },
+                      {
+                        "name": ":P2",
+                        "type": "expression",
+                        "value": "{{NOW_UTC}}",
+                        "test": ""
+                      },
+                      {
+                        "name": ":P3",
+                        "type": "expression",
+                        "value": "{{$_POST.email_id+'_deleted_'+NOW_UTC}}",
+                        "test": ""
+                      },
+                      {
+                        "name": ":P4",
+                        "type": "expression",
+                        "value": "{{identity}}",
+                        "test": ""
+                      },
+                      {
+                        "name": ":P5",
+                        "type": "expression",
+                        "value": "{{NOW_UTC}}",
+                        "test": ""
+                      },
+                      {
+                        "operator": "equal",
+                        "type": "expression",
+                        "name": ":P6",
+                        "value": "{{$_POST.user_id}}",
+                        "test": ""
+                      }
+                    ]
+                  }
+                },
+                "meta": [
+                  {
+                    "name": "affected",
+                    "type": "number"
+                  }
+                ]
+              },
+              {
+                "name": "dSharedSecret",
+                "module": "dbupdater",
+                "action": "delete",
+                "options": {
+                  "connection": "db",
+                  "sql": {
+                    "type": "delete",
+                    "table": "app.t_shared_secrets",
+                    "wheres": {
+                      "condition": "AND",
+                      "rules": [
+                        {
+                          "id": "user_id",
+                          "field": "user_id",
+                          "type": "string",
+                          "operator": "equal",
+                          "value": "{{$_POST.user_id}}",
+                          "data": {
+                            "column": "user_id"
+                          },
+                          "operation": "="
+                        }
+                      ],
+                      "conditional": null,
+                      "valid": true
+                    },
+                    "returning": "id",
+                    "query": "delete from \"app\".\"t_shared_secrets\" where \"user_id\" = ?",
+                    "params": [
+                      {
+                        "operator": "equal",
+                        "type": "expression",
+                        "name": ":P1",
+                        "value": "{{$_POST.user_id}}",
+                        "test": ""
+                      }
+                    ]
+                  }
+                },
+                "meta": [
+                  {
+                    "name": "affected",
+                    "type": "number"
+                  }
+                ]
+              },
+              {
+                "name": "xLog",
+                "module": "SALog",
+                "action": "CreateLog",
+                "options": {
+                  "connection": "db",
+                  "logMode": true,
+                  "inputParams": "{{$_POST}}",
+                  "outputParams": "",
+                  "serverActionName": "{{$_SERVER.PATH_INFO}}",
+                  "requestURL": "{{$_SERVER.BASE_URL}}",
+                  "errors": "",
+                  "startedOn": "{{varStartTime}}",
+                  "completedOn": "{{NOW_UTC}}",
+                  "remarks": "",
+                  "sessionGUID": "{{varSessionGUID}}",
+                  "userIdentity": "{{identity}}"
+                },
+                "meta": [
+                  {
+                    "name": "log",
+                    "type": "array"
+                  }
+                ]
+              }
+            ]
+          },
+          "catch": {
+            "steps": {
+              "name": "xLogErr",
+              "module": "SALog",
+              "action": "CreateLog",
+              "options": {
+                "connection": "db",
+                "logMode": true,
+                "inputParams": "{{$_POST}}",
+                "outputParams": "",
+                "serverActionName": "{{$_SERVER.PATH_INFO}}",
+                "requestURL": "{{$_SERVER.BASE_URL}}",
+                "errors": "{{$_ERROR}}",
+                "startedOn": "{{varStartTime}}",
+                "completedOn": "{{NOW_UTC}}",
+                "remarks": "",
+                "status": 500,
+                "response": "{{varError}}",
+                "sessionGUID": "{{varSessionGUID}}",
+                "userIdentity": "{{identity}}"
+              },
+              "meta": [
+                {
+                  "name": "log",
+                  "type": "array"
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

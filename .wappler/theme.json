@@ -1,0 +1,9 @@
+{
+  "bootstrap5": {
+    "basic": {
+      "headings-font-family": "Lexend Deca:400",
+      "font-family-base": "Lexend Deca:400"
+    },
+    "advanced": {}
+  }
+}

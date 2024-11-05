@@ -1,0 +1,10 @@
+{
+  "debug": "{{$_ENV.DEBUG_MODE == 1}}",
+  "secret": "{{$_ENV.SITE_SECRET_KEY}}",
+  "session": {
+    "store": {
+      "$type": "database",
+      "knex": "db"
+    }
+  }
+}

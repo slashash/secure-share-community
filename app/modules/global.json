@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "$_SERVER": [
+      {
+        "type": "text",
+        "name": "HTTP_REFERER"
+      }
+    ]
+  },
+  "exec": {
+    "steps": [
+      {
+        "name": "identity",
+        "module": "auth",
+        "action": "identify",
+        "options": {
+          "provider": "security"
+        },
+        "output": false,
+        "meta": []
+      },
+      {
+        "name": "varSessionGUID",
+        "module": "core",
+        "action": "setvalue",
+        "options": {
+          "key": "varSessionGUID",
+          "value": "{{UUID}}"
+        },
+        "meta": [],
+        "outputType": "text"
+      },
+      {
+        "name": "varStartTime",
+        "module": "core",
+        "action": "setvalue",
+        "options": {
+          "key": "varStartTime",
+          "value": "{{NOW_UTC}}"
+        },
+        "meta": [],
+        "outputType": "text"
+      },
+      {
+        "name": "varError",
+        "module": "core",
+        "action": "setvalue",
+        "options": {
+          "key": "varError",
+          "value": "Server error occurred. Please try again later."
+        },
+        "meta": [],
+        "outputType": "text"
+      }
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+.table-middle tr td,
+.table-middle tr th,
+.table-middle-td tr td {
+  vertical-align: middle;
+}
+
+.table-responsive .dropdown,
+.table-responsive .btn-group,
+.table-responsive .btn-group-vertical {
+    position: static;
+}
+
+[data-bs-theme="dark"] #logoImg {
+    content: url("https://slashash.co/i/made_by_SLASHASH2.svg");
+}
+[data-bs-theme="light"] #logoImg {
+    content: url("https://slashash.co/i/made_by_SLASHASH.svg");
+}
+/* [data-bs-theme="auto"] #logoImg {
+    content: url("https://slashash.co/i/made_by_SLASHASH.svg");
+} */
+
+#pdfViewer {
+  width: 100%; /* Ensure the viewer takes the full width of its container */
+  overflow-x: hidden; /* Prevent horizontal overflow */
+}
+
+#pdfViewer canvas {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%; /* Ensure the canvas does not exceed the width of the container */
+}
+
+.dmx-notify {
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center !important;
+}

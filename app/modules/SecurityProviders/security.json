@@ -1,0 +1,36 @@
+{
+  "name": "security",
+  "module": "auth",
+  "action": "provider",
+  "options": {
+    "secret": "NCelsasweDkVAWgg",
+    "provider": "Database",
+    "connection": "db",
+    "passwordVerify": true,
+    "users": {
+      "table": "app.m_user",
+      "identity": "user_id",
+      "username": "email_id",
+      "password": "pass"
+    },
+    "permissions": {
+      "admin": {
+        "table": "app.m_user",
+        "identity": "user_id",
+        "conditions": [
+          {
+            "column": "login_disabled_on",
+            "operator": "is null",
+            "value": ""
+          }
+        ]
+      }
+    }
+  },
+  "meta": [
+    {
+      "name": "identity",
+      "type": "text"
+    }
+  ]
+}

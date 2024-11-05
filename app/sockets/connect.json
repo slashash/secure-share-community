@@ -1,0 +1,8 @@
+{
+  "name": "join",
+  "module": "sockets",
+  "action": "join",
+  "options": {
+    "room": "{{identity}}"
+  }
+}

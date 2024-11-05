@@ -1,0 +1,158 @@
+[
+  {
+    type: "cryptography_decryptData",
+    module: "cryptography",
+    action: "decryptData",
+    groupTitle: "Cryptographic",
+    groupIcon: "fad fa-key comp-security",
+    title: "Decrypt Data",
+    icon: "fas fa-solid fa-lock-open comp-security",
+    dataPickObject: true,
+    dataScheme: [
+      {
+        name: "decryptedData",
+        type: "text"
+      },
+      {
+        name: "error",
+        type: "text"
+      }
+    ],
+    properties: [
+      {
+        group: "Properties",
+        variables: [
+          {
+            name: "name",
+            optionName: "name",
+            title: "Name<sup style=\"color:red\">*</sup>",
+            type: "text",
+            required: true,
+            defaultValue: ""
+          },
+          {
+            name: "encryptedData",
+            optionName: "encryptedData",
+            title: "Encrypted Data<sup style=\"color:red\">*</sup>",
+            type: "text",
+            required: true,
+            defaultValue: "",
+            serverDataBindings: true
+          },
+          {
+            name: "encryptedKey",
+            optionName: "encryptedKey",
+            title: "Encrypted Key<sup style=\"color:red\">*</sup>",
+            type: "text",
+            required: true,
+            defaultValue: "",
+            serverDataBindings: true
+          },
+          {
+            name: "secretIV",
+            optionName: "secretIV",
+            title: "Secret IV<sup style=\"color:red\">*</sup>",
+            type: "text",
+            required: true,
+            defaultValue: "",
+            serverDataBindings: true
+          },
+          {
+            name: "privateKeyPEM",
+            optionName: "privateKeyPEM",
+            title: "Private Key (PEM)<sup style=\"color:red\">*</sup>",
+            type: "text",
+            required: true,
+            defaultValue: "",
+            serverDataBindings: true
+          },
+          {
+            name: "output",
+            optionName: "output",
+            title: "Output",
+            type: "boolean",
+            defaultValue: false
+          }
+        ]
+      }
+    ],
+    usedModules: {
+      node: {
+        node-forge: "^1.3.1"
+      }
+    }
+  },
+  {
+    type: "cryptography_encryptData",
+    module: "cryptography",
+    action: "encryptData",
+    groupTitle: "Cryptographic",
+    groupIcon: "fad fa-key comp-security",
+    title: "Encrypt Data",
+    icon: "fas fa-solid fa-lock comp-security",
+    dataPickObject: true,
+    dataScheme: [
+      {
+        name: "encryptedKey",
+        type: "text"
+      },
+      {
+        name: "secretIV",
+        type: "text"
+      },
+      {
+        name: "encryptedData",
+        type: "text"
+      },
+      {
+        name: "error",
+        type: "text"
+      }
+    ],
+    properties: [
+      {
+        group: "Properties",
+        variables: [
+          {
+            name: "name",
+            optionName: "name",
+            title: "Name<sup style=\"color:red\">*</sup>",
+            type: "text",
+            required: true,
+            defaultValue: ""
+          },
+          {
+            name: "plainText",
+            optionName: "plainText",
+            title: "Plain Text<sup style=\"color:red\">*</sup>",
+            type: "text",
+            required: true,
+            defaultValue: "",
+            serverDataBindings: true
+          },
+          {
+            name: "pubKey",
+            optionName: "pubKey",
+            title: "Public Key<sup style=\"color:red\">*</sup>",
+            type: "text",
+            required: true,
+            defaultValue: "",
+            serverDataBindings: true
+          },
+          {
+            name: "output",
+            optionName: "output",
+            title: "Output",
+            type: "boolean",
+            defaultValue: false
+          }
+        ]
+      }
+    ],
+    usedModules: {
+      node: {
+        node-forge: "^1.3.1"
+      }
+    }
+  }
+]

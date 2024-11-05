@@ -1,0 +1,625 @@
+{
+  "meta": {
+    "options": {
+      "linkedFile": "/views/users.ejs",
+      "linkedForm": "formManageUser"
+    },
+    "$_POST": [
+      {
+        "type": "text",
+        "fieldName": "user_id",
+        "name": "user_id"
+      },
+      {
+        "type": "text",
+        "fieldName": "first_name",
+        "options": {
+          "rules": {
+            "core:required": {
+              "param": ""
+            },
+            "core:maxlength": {
+              "param": "32"
+            }
+          }
+        },
+        "name": "first_name"
+      },
+      {
+        "type": "text",
+        "fieldName": "last_name",
+        "options": {
+          "rules": {
+            "core:maxlength": {
+              "param": "32"
+            }
+          }
+        },
+        "name": "last_name"
+      },
+      {
+        "type": "text",
+        "fieldName": "email_id",
+        "options": {
+          "rules": {
+            "core:email": {}
+          }
+        },
+        "name": "email_id"
+      },
+      {
+        "type": "text",
+        "fieldName": "login_disabled",
+        "name": "login_disabled"
+      }
+    ]
+  },
+  "exec": {
+    "steps": [
+      {
+        "name": "",
+        "module": "auth",
+        "action": "restrict",
+        "options": {
+          "provider": "security",
+          "permissions": [
+            "admin"
+          ],
+          "loginUrl": "/",
+          "forbiddenUrl": "/403-forbidden"
+        }
+      },
+      {
+        "name": "",
+        "module": "core",
+        "action": "trycatch",
+        "options": {
+          "try": {
+            "steps": [
+              {
+                "name": "qCheck",
+                "module": "dbconnector",
+                "action": "single",
+                "options": {
+                  "connection": "db",
+                  "sql": {
+                    "type": "select",
+                    "columns": [
+                      {
+                        "table": "m_user",
+                        "column": "user_id",
+                        "schema": "app",
+                        "recid": 1
+                      }
+                    ],
+                    "params": [
+                      {
+                        "operator": "equal",
+                        "type": "expression",
+                        "name": ":P1",
+                        "value": "{{$_POST.email_id}}",
+                        "test": ""
+                      },
+                      {
+                        "operator": "not_equal",
+                        "type": "expression",
+                        "name": ":P2",
+                        "value": "{{$_POST.user_id}}",
+                        "test": ""
+                      }
+                    ],
+                    "table": {
+                      "name": "m_user",
+                      "schema": "app"
+                    },
+                    "primary": "user_id",
+                    "joins": [],
+                    "wheres": {
+                      "condition": "AND",
+                      "rules": [
+                        {
+                          "id": "app.m_user.email_id",
+                          "field": "app.m_user.email_id",
+                          "type": "string",
+                          "operator": "equal",
+                          "value": "{{$_POST.email_id}}",
+                          "data": {
+                            "table": "m_user",
+                            "column": "email_id",
+                            "type": "text",
+                            "columnObj": {
+                              "type": "string",
+                              "maxLength": 254,
+                              "primary": false,
+                              "unique": true,
+                              "nullable": false,
+                              "name": "email_id"
+                            },
+                            "schema": "app"
+                          },
+                          "operation": "=",
+                          "table": "m_user"
+                        },
+                        {
+                          "condition": "AND",
+                          "rules": [
+                            {
+                              "id": "app.m_user.user_id",
+                              "field": "app.m_user.user_id",
+                              "type": "string",
+                              "operator": "not_equal",
+                              "value": "{{$_POST.user_id}}",
+                              "data": {
+                                "table": "m_user",
+                                "column": "user_id",
+                                "type": "text",
+                                "columnObj": {
+                                  "type": "uuid",
+                                  "default": "gen_random_uuid()",
+                                  "primary": true,
+                                  "unique": true,
+                                  "nullable": false,
+                                  "name": "user_id"
+                                },
+                                "schema": "app"
+                              },
+                              "operation": "<>",
+                              "table": "m_user"
+                            }
+                          ],
+                          "conditional": "{{$_POST.user_id}}",
+                          "table": "m_user",
+                          "id": "m_user.undefined"
+                        }
+                      ],
+                      "conditional": null,
+                      "valid": true
+                    },
+                    "query": "select \"user_id\" from \"app\".\"m_user\" where \"app\".\"m_user\".\"email_id\" = ? and (\"app\".\"m_user\".\"user_id\" <> ?)"
+                  }
+                },
+                "output": false,
+                "meta": [
+                  {
+                    "type": "text",
+                    "name": "user_id"
+                  }
+                ],
+                "outputType": "object"
+              },
+              {
+                "name": "",
+                "module": "core",
+                "action": "condition",
+                "options": {
+                  "if": "{{qCheck.user_id}}",
+                  "then": {
+                    "steps": {
+                      "name": "xLog",
+                      "module": "SALog",
+                      "action": "CreateLog",
+                      "options": {
+                        "connection": "db",
+                        "logMode": true,
+                        "inputParams": "{{$_POST}}",
+                        "outputParams": "",
+                        "serverActionName": "{{$_SERVER.PATH_INFO}}",
+                        "requestURL": "{{$_SERVER.BASE_URL}}",
+                        "errors": "{{$_ERROR}}",
+                        "startedOn": "{{varStartTime}}",
+                        "completedOn": "{{NOW_UTC}}",
+                        "remarks": "",
+                        "sessionGUID": "{{varSessionGUID}}",
+                        "userIdentity": "{{identity}}",
+                        "response": "User already exists.",
+                        "status": 409
+                      },
+                      "meta": [
+                        {
+                          "name": "log",
+                          "type": "array"
+                        }
+                      ]
+                    }
+                  },
+                  "else": {
+                    "steps": {
+                      "name": "",
+                      "module": "core",
+                      "action": "condition",
+                      "options": {
+                        "if": "{{$_POST.user_id}}",
+                        "then": {
+                          "steps": {
+                            "name": "uUserInfo",
+                            "module": "dbupdater",
+                            "action": "update",
+                            "options": {
+                              "connection": "db",
+                              "sql": {
+                                "type": "update",
+                                "values": [
+                                  {
+                                    "table": "app.m_user",
+                                    "column": "first_name",
+                                    "type": "text",
+                                    "value": "{{$_POST.first_name}}"
+                                  },
+                                  {
+                                    "table": "app.m_user",
+                                    "column": "last_name",
+                                    "type": "text",
+                                    "value": "{{$_POST.last_name}}"
+                                  },
+                                  {
+                                    "table": "app.m_user",
+                                    "column": "email_id",
+                                    "type": "text",
+                                    "value": "{{$_POST.email_id}}"
+                                  },
+                                  {
+                                    "table": "app.m_user",
+                                    "column": "login_disabled_on",
+                                    "type": "datetime",
+                                    "value": "{{$_POST.login_disabled?NOW_UTC:null}}"
+                                  },
+                                  {
+                                    "table": "app.m_user",
+                                    "column": "login_disabled_by",
+                                    "type": "text",
+                                    "value": "{{$_POST.login_disabled?identity:null}}"
+                                  },
+                                  {
+                                    "table": "app.m_user",
+                                    "column": "updated_by",
+                                    "type": "text",
+                                    "value": "{{identity}}",
+                                    "condition": "{{identity}}"
+                                  },
+                                  {
+                                    "table": "app.m_user",
+                                    "column": "updated_on",
+                                    "type": "datetime",
+                                    "value": "{{NOW_UTC}}"
+                                  }
+                                ],
+                                "table": "app.m_user",
+                                "wheres": {
+                                  "condition": "AND",
+                                  "rules": [
+                                    {
+                                      "id": "user_id",
+                                      "type": "string",
+                                      "operator": "equal",
+                                      "value": "{{$_POST.user_id}}",
+                                      "data": {
+                                        "column": "user_id"
+                                      },
+                                      "operation": "="
+                                    }
+                                  ]
+                                },
+                                "returning": "user_id",
+                                "query": "update \"app\".\"m_user\" set \"first_name\" = ?, \"last_name\" = ?, \"email_id\" = ?, \"login_disabled_on\" = ?, \"login_disabled_by\" = ?, \"updated_by\" = ?, \"updated_on\" = ? where \"user_id\" = ? returning \"user_id\"",
+                                "params": [
+                                  {
+                                    "name": ":P1",
+                                    "type": "expression",
+                                    "value": "{{$_POST.first_name}}",
+                                    "test": ""
+                                  },
+                                  {
+                                    "name": ":P2",
+                                    "type": "expression",
+                                    "value": "{{$_POST.last_name}}",
+                                    "test": ""
+                                  },
+                                  {
+                                    "name": ":P3",
+                                    "type": "expression",
+                                    "value": "{{$_POST.email_id}}",
+                                    "test": ""
+                                  },
+                                  {
+                                    "name": ":P4",
+                                    "type": "expression",
+                                    "value": "{{$_POST.login_disabled?NOW_UTC:null}}",
+                                    "test": ""
+                                  },
+                                  {
+                                    "name": ":P5",
+                                    "type": "expression",
+                                    "value": "{{$_POST.login_disabled?identity:null}}",
+                                    "test": ""
+                                  },
+                                  {
+                                    "name": ":P6",
+                                    "type": "expression",
+                                    "value": "{{identity}}",
+                                    "test": ""
+                                  },
+                                  {
+                                    "name": ":P7",
+                                    "type": "expression",
+                                    "value": "{{NOW_UTC}}",
+                                    "test": ""
+                                  },
+                                  {
+                                    "operator": "equal",
+                                    "type": "expression",
+                                    "name": ":P8",
+                                    "value": "{{$_POST.user_id}}",
+                                    "test": ""
+                                  }
+                                ]
+                              }
+                            },
+                            "meta": [
+                              {
+                                "name": "affected",
+                                "type": "number"
+                              }
+                            ],
+                            "output": false
+                          }
+                        },
+                        "else": {
+                          "steps": [
+                            {
+                              "name": "varResetToken",
+                              "module": "core",
+                              "action": "setvalue",
+                              "options": {
+                                "value": "{{UUID}}",
+                                "key": "varResetToken"
+                              },
+                              "meta": [],
+                              "outputType": "text",
+                              "output": false
+                            },
+                            {
+                              "name": "iUserInfo",
+                              "module": "dbupdater",
+                              "action": "insert",
+                              "options": {
+                                "connection": "db",
+                                "sql": {
+                                  "type": "insert",
+                                  "values": [
+                                    {
+                                      "table": "app.m_user",
+                                      "column": "first_name",
+                                      "type": "text",
+                                      "value": "{{$_POST.first_name}}",
+                                      "recid": 1
+                                    },
+                                    {
+                                      "table": "app.m_user",
+                                      "column": "last_name",
+                                      "type": "text",
+                                      "value": "{{$_POST.last_name}}",
+                                      "recid": 2
+                                    },
+                                    {
+                                      "table": "app.m_user",
+                                      "column": "email_id",
+                                      "type": "text",
+                                      "value": "{{$_POST.email_id}}",
+                                      "recid": 3
+                                    },
+                                    {
+                                      "table": "app.m_user",
+                                      "column": "created_on",
+                                      "type": "datetime",
+                                      "value": "{{NOW_UTC}}",
+                                      "recid": 4
+                                    },
+                                    {
+                                      "table": "app.m_user",
+                                      "column": "pass_reset_token",
+                                      "type": "text",
+                                      "value": "{{varResetToken}}",
+                                      "recid": 5
+                                    },
+                                    {
+                                      "table": "app.m_user",
+                                      "column": "force_reset_pass",
+                                      "type": "boolean",
+                                      "value": "{{false}}",
+                                      "recid": 6
+                                    },
+                                    {
+                                      "table": "app.m_user",
+                                      "column": "created_by",
+                                      "type": "text",
+                                      "value": "{{identity}}",
+                                      "condition": "{{identity}}",
+                                      "recid": 7
+                                    },
+                                    {
+                                      "table": "app.m_user",
+                                      "column": "login_disabled_on",
+                                      "type": "datetime",
+                                      "value": "{{$_POST.login_disabled?NOW_UTC:null}}",
+                                      "recid": 8
+                                    },
+                                    {
+                                      "table": "app.m_user",
+                                      "column": "login_disabled_by",
+                                      "type": "text",
+                                      "value": "{{$_POST.login_disabled?identity:null}}",
+                                      "recid": 9
+                                    },
+                                    {
+                                      "table": "app.m_user",
+                                      "column": "pass_reset_token_expiry",
+                                      "type": "datetime",
+                                      "value": "{{NOW_UTC.dateAdd('hours', 24)}}",
+                                      "recid": 10
+                                    }
+                                  ],
+                                  "table": "app.m_user",
+                                  "returning": "user_id",
+                                  "query": "insert into \"app\".\"m_user\" (\"created_by\", \"created_on\", \"email_id\", \"first_name\", \"force_reset_pass\", \"last_name\", \"login_disabled_by\", \"login_disabled_on\", \"pass_reset_token\", \"pass_reset_token_expiry\") values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning \"user_id\"",
+                                  "params": [
+                                    {
+                                      "name": ":P1",
+                                      "type": "expression",
+                                      "value": "{{$_POST.first_name}}",
+                                      "test": ""
+                                    },
+                                    {
+                                      "name": ":P2",
+                                      "type": "expression",
+                                      "value": "{{$_POST.last_name}}",
+                                      "test": ""
+                                    },
+                                    {
+                                      "name": ":P3",
+                                      "type": "expression",
+                                      "value": "{{$_POST.email_id}}",
+                                      "test": ""
+                                    },
+                                    {
+                                      "name": ":P4",
+                                      "type": "expression",
+                                      "value": "{{NOW_UTC}}",
+                                      "test": ""
+                                    },
+                                    {
+                                      "name": ":P5",
+                                      "type": "expression",
+                                      "value": "{{varResetToken}}",
+                                      "test": ""
+                                    },
+                                    {
+                                      "name": ":P6",
+                                      "type": "expression",
+                                      "value": "{{false}}",
+                                      "test": ""
+                                    },
+                                    {
+                                      "name": ":P7",
+                                      "type": "expression",
+                                      "value": "{{identity}}",
+                                      "test": ""
+                                    },
+                                    {
+                                      "name": ":P8",
+                                      "type": "expression",
+                                      "value": "{{$_POST.login_disabled?NOW_UTC:null}}",
+                                      "test": ""
+                                    },
+                                    {
+                                      "name": ":P9",
+                                      "type": "expression",
+                                      "value": "{{$_POST.login_disabled?identity:null}}",
+                                      "test": ""
+                                    },
+                                    {
+                                      "name": ":P10",
+                                      "type": "expression",
+                                      "value": "{{NOW_UTC.dateAdd('hours', 24)}}",
+                                      "test": ""
+                                    }
+                                  ]
+                                }
+                              },
+                              "meta": [
+                                {
+                                  "name": "identity",
+                                  "type": "text"
+                                },
+                                {
+                                  "name": "affected",
+                                  "type": "number"
+                                }
+                              ]
+                            },
+                            {
+                              "name": "",
+                              "module": "mail",
+                              "action": "send",
+                              "options": {
+                                "instance": "mail",
+                                "subject": "Welcome. 👋🏼",
+                                "fromName": "Secure Share",
+                                "fromEmail": "{{$_ENV.SMTP_SENDER_EMAIL}}",
+                                "replyTo": "{{$_ENV.REPLY_TO_EMAIL}}",
+                                "toName": "{{$_POST.first_name+' '+$_POST.last_name}}",
+                                "toEmail": "{{$_POST.email_id}}",
+                                "contentType": "html",
+                                "source": "file",
+                                "bodyFile": "/templates/user-added.html"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "outputType": "boolean"
+                    }
+                  }
+                },
+                "outputType": "boolean"
+              },
+              {
+                "name": "xLog",
+                "module": "SALog",
+                "action": "CreateLog",
+                "options": {
+                  "connection": "db",
+                  "logMode": true,
+                  "inputParams": "{{$_POST}}",
+                  "outputParams": "",
+                  "serverActionName": "{{$_SERVER.PATH_INFO}}",
+                  "requestURL": "{{$_SERVER.BASE_URL}}",
+                  "errors": "",
+                  "startedOn": "{{varStartTime}}",
+                  "completedOn": "{{NOW_UTC}}",
+                  "remarks": "",
+                  "sessionGUID": "{{varSessionGUID}}",
+                  "userIdentity": "{{identity}}"
+                },
+                "meta": [
+                  {
+                    "name": "log",
+                    "type": "array"
+                  }
+                ]
+              }
+            ]
+          },
+          "catch": {
+            "steps": {
+              "name": "xLogErr",
+              "module": "SALog",
+              "action": "CreateLog",
+              "options": {
+                "connection": "db",
+                "logMode": true,
+                "inputParams": "{{$_POST}}",
+                "outputParams": "",
+                "serverActionName": "{{$_SERVER.PATH_INFO}}",
+                "requestURL": "{{$_SERVER.BASE_URL}}",
+                "errors": "{{$_ERROR}}",
+                "startedOn": "{{varStartTime}}",
+                "completedOn": "{{NOW_UTC}}",
+                "remarks": "",
+                "status": 500,
+                "response": "{{varError}}",
+                "sessionGUID": "{{varSessionGUID}}",
+                "userIdentity": "{{identity}}"
+              },
+              "meta": [
+                {
+                  "name": "log",
+                  "type": "array"
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}
